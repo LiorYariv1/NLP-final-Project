@@ -3,6 +3,7 @@ data_paths:
   cmu_plot_summaries: /home/student/project/data/plot_summaries.txt
   cmu_metadata: /home/student/project/data/movie.metadata.tsv
   wiki: /home/student/project/data/wiki_movie_plots_deduped.csv
+  full_dataset: /home/student/project/data/full_dataset.csv
 
 
 training_args:
