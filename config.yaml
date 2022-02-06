@@ -1,5 +1,5 @@
 
-data_path: home/student
+data_paths:
   cmu_plot_summaries: /home/student/project/data/plot_summaries.txt
   cmu_metadata: /home/student/project/data/movie.metadata.tsv
 
