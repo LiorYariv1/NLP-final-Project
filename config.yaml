@@ -1,5 +1,8 @@
 
 data_path: home/student
+  cmu_plot_summaries: /home/student/project/data/plot_summaries.txt
+  cmu_metadata: /home/student/project/data/movie.metadata.tsv
+
 
 training_args:
   epochs: 100
