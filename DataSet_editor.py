@@ -1,6 +1,9 @@
-
+from KW_extractor import keybert_extractor
 import pandas as pd
 import json
+from tqdm.notebook import tqdm
+tqdm.pandas()
+
 
 def combine_datasets (paths):
     """
@@ -28,3 +31,16 @@ def combine_datasets (paths):
     wiki_df = wiki_df.rename(columns={'Genre':'genres'})
     all_movies=  wiki_df[['Title','genres','Plot']].append(joined[['Title','genres','Plot']])
     all_movies.to_csv(paths.full_dataset)
+
+def bert_extraction(paths,col_name):
+    """
+    adds a column named col_name with the extracted kwywords using keybert
+    TODO: decide if to add a type var that will determine what process function to call for in kbextractor
+    :param paths:  data paths from main
+    :param col_name:  col name to add to the datasets
+    :return:
+    """
+    kb = keybert_extractor()
+    df = pd.read_csv(paths.full_dataset)
+    df[col_name] = df['Plot'].progress_apply(kb.sentence_process, **{'k':2})
+    df.to_csv(paths.full_dataset)

@@ -1,7 +1,7 @@
 import argparse
 import yaml
 from box import Box
-from DataSet_editor import combine_datasets
+from DataSet_editor import combine_datasets,bert_extraction
 
 
 if __name__ =='__main__' :
@@ -12,4 +12,6 @@ if __name__ =='__main__' :
     parse_args = parser.parse_args()
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
-    combine_datasets(args.data_paths)
+    # combine_datasets(args.data_paths)
+    bert_extraction(args.data_paths,'kw_kb_1')
+
