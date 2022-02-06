@@ -1,0 +1,6 @@
+
+data_path: home/student
+
+training_args:
+  epochs: 100
+  lr: 1e-5
