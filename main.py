@@ -1,8 +1,8 @@
 import argparse
 import yaml
 from box import Box
-from DataSet_editor import combine_datasets,bert_extraction
-
+from DataSet_editor import combine_datasets,kw_extraction
+from KW_extractor import Rake_extractor
 
 if __name__ =='__main__' :
     parser = argparse.ArgumentParser(description='argument parser')
@@ -13,5 +13,5 @@ if __name__ =='__main__' :
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
     # combine_datasets(args.data_paths)
-    bert_extraction(args.data_paths,'kw_kb_1')
+    df = kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1')
 
