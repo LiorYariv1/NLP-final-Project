@@ -13,5 +13,5 @@ if __name__ =='__main__' :
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
     # combine_datasets(args.data_paths)
-    df = kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1')
+    kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1')
 

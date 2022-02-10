@@ -32,7 +32,7 @@ def combine_datasets (paths):
     all_movies=  wiki_df[['Title','genres','Plot']].append(joined[['Title','genres','Plot']])
     all_movies.to_csv(paths.full_dataset)
 
-def kw_extraction(extractor,paths,col_name,kwargs):
+def kw_extraction(extractor,paths,col_name):
     """
     adds a column named col_name with the extracted kwywords using keybert
     TODO: decide if to add a type var that will determine what process function to call for in kbextractor
@@ -40,9 +40,8 @@ def kw_extraction(extractor,paths,col_name,kwargs):
     :param col_name:  col name to add to the datasets
     :return:
     """
-    extractor = extractor(**kwargs)
+    extractor = extractor()
     df = pd.read_csv(paths.full_dataset)
-    df = df[0:5]
+    print(df.shape)
     df[col_name] = df['Plot'].progress_apply(extractor.sentence_process, **{'k':2})
-    return df
-    # df.to_csv(paths.full_dataset)
+    df.to_csv(paths.full_dataset)
