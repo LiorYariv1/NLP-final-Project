@@ -5,6 +5,22 @@ data_paths:
   wiki: /home/student/project/data/wiki_movie_plots_deduped.csv
   full_dataset: /home/student/project/data/full_dataset.csv
 
+T5:
+  model_name: t5-base
+
+  train_args:
+    output_dir: results
+    overwrite_output_dir: True
+    per_device_train_batch_size: 32
+    per_device_eval_batch_size: 64
+    save_strategy: 'no'
+    metric_for_best_model: 'dev_f1'  #FIXME: change to the metric of the article
+    greater_is_better: True #FIXME - according to metric
+    evaluation_strategy: 'epoch'
+    do_train: True
+    num_train_epochs: 5
+    report_to: 'none'
+
 
 training_args:
   epochs: 100

@@ -71,6 +71,5 @@ class Rake_extractor():
             kw_tmp = self.rake_obj.run(txt, minCharacters=3, maxWords=n[1],minFrequency=n[2])
             kw_tmp = sorted(kw_tmp, key=lambda x: x[1])
             kw += [x[0] for x in kw_tmp[-k:]]
-        return kw
-
+        return ', '.join(kw)
 
