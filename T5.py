@@ -7,7 +7,8 @@ from torch import nn
 import torch
 from pathlib import Path
 import pandas as pd
-
+from collections import Counter
+from numpy import mean
 from datasets import Dataset, DatasetDict
 
 # datasets.Dataset.from_pandas(tmp)
@@ -20,6 +21,10 @@ class T5_trainer():
 
     # TODO: add functions: repetition metrics,
     def __init__(self, args):
+        """
+        this class is used for the T5 training process, including tokenization, training and evaluation
+        :param args: input arguments
+        """
         self.args = args
         self.model_name = args.T5.model_name
         self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
@@ -36,6 +41,10 @@ class T5_trainer():
 
 
     def organize_dataset(self, input_cols):
+        """
+        :param input_cols: data columns in the dataframe
+        :return: saves original dataframe and tokenized datasets for the model
+        """
         self.df = pd.read_csv(self.args.data_paths.full_dataset)
         train_ds = self.df[self.df['row_class']=='train'][input_cols]
         test_ds = self.df[self.df['row_class']=='test'][input_cols]
@@ -49,6 +58,11 @@ class T5_trainer():
         self.tokenized_datasets.set_format('torch')
 
     def tokenize_fn(self, examples, input_cols):
+        """
+        :param examples: examples to tokenize
+        :param input_cols: data columns
+        :return:
+        """
         tokenized_examples = self.tokenizer(
             *[examples[col] for col in input_cols], truncation=True, padding="max_length",
         )
@@ -60,6 +74,10 @@ class T5_trainer():
         return tokenized_examples
 
     def collate_fn(self, data):
+        """
+        :param data:
+        :return:
+        """
         out = {}
         num_labels = []
         for sen in data:
@@ -99,3 +117,41 @@ class PlotGenerationModel(nn.Module):
 
 
 
+class repetitions():
+    ##TODO: adjust to T5 output
+    def __init__ (self,):
+        self.sent_delimiter = '</s>'
+
+
+    def get_ngrams(self,text, n=3, sent_delimiter="</s>"):
+        """takes file with text and an optional sentence delimiter, returns counter of ngrams"""
+        ngrams = Counter()
+        sentences = [sent.split() for sent in text.strip().split(sent_delimiter)]  # nested list words in sents
+        for sent in sentences:
+            for i in range(len(sent) - n + 1):
+                ngrams[' '.join(sent[i:i + n])] += 1
+        return ngrams
+
+    def intra_repetitinos(self,n,plots):
+        repetition_array = []
+        for plot in plots:
+            ngrams = self.get_ngrams(plot,n)
+            unique_ngrams = len(ngrams)
+            total_ngrams = sum(ngrams.values())
+            ngrams_repetition = (total_ngrams - unique_ngrams) / total_ngrams
+            repetition_array.append(ngrams_repetition)
+        return {'plots_number':len(plots),'mean':mean(repetition_array), 'min':min(repetition_array),'max':max(repetition_array)}
+
+    def inter_repetitions(self,plots):
+        all_plots = ''
+        for plot in plots:
+            all_plots += plot + ' '
+        unigrams = self.get_ngrams(all_plots,n=1)
+        bigrams = self.get_ngrams(all_plots, n=2)
+        trigrams = self.get_ngrams(all_plots, n=3)
+        results = {}
+        for n,res in zip([1,2,3],[unigrams,bigrams,trigrams]):
+            num = len(res)
+            cur_sum = sum([res[x] for x in res])
+            results[n] = (1.0-float(num))/float(cur_sum)
+        return results
