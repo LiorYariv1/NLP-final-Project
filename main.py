@@ -4,8 +4,7 @@ from box import Box
 from DataSet_editor import combine_datasets,kw_extraction
 from KW_extractor import Rake_extractor
 from transformers import AutoTokenizer
-from T5 import tokenize_fn, PlotGenerationModel
-
+from T5 import T5_trainer, PlotGenerationModel
 from datasets import load_metric
 import numpy as np
 
@@ -19,15 +18,14 @@ if __name__ =='__main__' :
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
     # combine_datasets(args.data_paths)
-    kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1')
+    # kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1') ##one-time-run
+    # kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1') ##one-time-run
 
     # T5
-    model_name = args.T5.model_name
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    T5_obj = T5_trainer(args)
+    input_cols = ['Title', 'genres', 'Plot']
+    T5_obj.organize_dataset(input_cols)
+    print("OMST")
 
-    tokenized_datasets = datasets.map(tokenize_fn, remove_columns=datasets["train"].column_names)
-    tokenized_datasets.set_format('torch')
-
-    model = PlotGenerationModel()
-
+    # model = PlotGenerationModel(args.T5.model_name)
 
