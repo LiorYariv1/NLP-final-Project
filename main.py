@@ -1,8 +1,8 @@
 import argparse
 import yaml
 from box import Box
-from DataSet_editor import combine_datasets,kw_extraction
-from KW_extractor import Rake_extractor
+from DataSet_editor import combine_datasets, kw_extraction, clean_data, proccess_genres
+from KW_extractor import Rake_extractor, keybert_extractor
 from transformers import AutoTokenizer
 from T5 import T5_trainer, PlotGenerationModel
 from datasets import load_metric
@@ -17,14 +17,22 @@ if __name__ =='__main__' :
     parse_args = parser.parse_args()
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
-    # combine_datasets(args.data_paths)
-    # kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1') ##one-time-run
-    # kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1') ##one-time-run
 
-    # T5
-    T5_obj = T5_trainer(args)
-    input_cols = ['Title', 'genres', 'Plot']
-    T5_obj.organize_dataset(input_cols)
+    # combine_datasets(args.data_paths)
+
+    # clean_data(args.data_paths)
+
+    proccess_genres(args.data_paths)
+
+    # print("Start keywords . . . ")
+    # kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1') ##one-time-run
+    # print("Rake DONE")
+    # kw_extraction(keybert_extractor,args.data_paths,'kw_kb_1') ##one-time-run
+
+    # # T5
+    # T5_obj = T5_trainer(args)
+    # input_cols = ['Title', 'genres', 'Plot']
+    # T5_obj.organize_dataset(input_cols)
     print("OMST")
 
     # model = PlotGenerationModel(args.T5.model_name)

@@ -3,6 +3,7 @@ import pandas as pd
 import json
 from tqdm.notebook import tqdm
 tqdm.pandas()
+import re
 
 
 def combine_datasets (paths):
@@ -32,9 +33,96 @@ def combine_datasets (paths):
     all_movies=  wiki_df[['Title','genres','Plot']].append(joined[['Title','genres','Plot']])
     all_movies.to_csv(paths.full_dataset)
 
+def clean_func(text):
+    if text[:11] == "As describe":
+        text = ','.join(text.split(',')[1:])
+    text = re.sub('\[\d*\]', '', text)
+    text = re.sub('\{[\w ]*\}', '', text)
+    text = re.sub('[^ a-zA-Z0-9.,\'\!\?\-\$\%\&\(\)_]', '', text)
+    text = re.sub('  *', ' ', text)
+    text = re.sub(' [.,!?] ', '. ', text)
+    if text[0] == " ":
+        text = text[1:]
+    return text
+
+def clean_data(paths):
+    all_movies = pd.read_csv(paths.full_dataset)
+    all_movies['clean_Plot'] = all_movies['Plot'].apply(clean_func)
+    all_movies.to_csv(paths.full_dataset)
+
+def proccess_genres_func(text):
+    if ((not (text)) or (str(text).lower()=="nan")):
+        return None
+    text = text.lower()
+    text = text.replace("rom-com", "romance, comedy")
+    text = text.replace("rom com", "romance, comedy")
+    text = text.replace("sci-fi", "science fiction")
+    text = text.replace("dramedy", "comedy, drama")
+    text = text.replace("/", ", ")
+    text = text.replace("-", ", ")
+    text = text.replace("romantic", "romance")
+    new_g_list = []
+
+    if 'action' in text:
+        new_g_list.append('action')
+    if 'comedy' in text:
+        new_g_list.append('comedy')
+    if 'crime' in text:
+        new_g_list.append('crime')
+    if 'drama' in text:
+        new_g_list.append('drama')
+    if 'fantasy' in text:
+        new_g_list.append('fantasy')
+    if 'horror' in text:
+        new_g_list.append('horror')
+    if 'mystery' in text:  ##mystery
+        new_g_list.append('mystery')
+    if 'roman' in text:
+        new_g_list.append('romance')
+    if 'science fiction' in text:
+        new_g_list.append('science fiction')
+    if 'sport' in text:
+        new_g_list.append('sport')
+    if 'thriller' in text:
+        new_g_list.append('thriller')
+    if 'war' in text:  ## war, western?
+        new_g_list.append('war')
+
+    # if type(new_g_list)=='NoneType' or len(new_g_list)<1:
+    #     return None
+    if not(new_g_list):
+        # print("+++", new_g_list)
+        return None
+
+    new_g = ""
+    for g in new_g_list:
+        new_g += ", "+g if new_g!="" else g
+    return new_g
+# Action, Crime, Fantasy, Horror, Romance, Science Fiction, Slice of Life, Sports, Thriller, War and Western
+
+# 'rom-com' -> 'romance, comedy'
+# 'rom com' -> 'romance, comedy'
+# 'war drama' -> 'war, drama'
+# 'sci-fi' -> 'science fiction'
+# '/' -> ', '
+# '-' -> ', '
+# 'romantic' -> 'romance'
+# 'sports' -> 'sport'
+# #NOT str.contains('drama') -> 'drama' #NOT
+# ['drama horror thriller film']
+
+def proccess_genres(paths):
+    all_movies = pd.read_csv(paths.full_dataset)
+    all_movies['new_genres'] = all_movies['genres'].apply(proccess_genres_func)
+    print(all_movies['new_genres'].values)
+    all_movies.to_csv(paths.full_dataset)
+
+
+
+
 def decide_train_test_sets(paths):  ##FIXME
     df = pd.read_csv(paths.full_dataset)
-    # train = df.sample(frac=0.7, random_state=43)
+    # train = df.sample(frac=0.7, random_state=43)    df = pd.read_csv(paths.full_dataset)
     df['row_class'] = 'train'
 
 def kw_extraction(extractor,paths,col_name):
@@ -45,9 +133,9 @@ def kw_extraction(extractor,paths,col_name):
     :param col_name:  col name to add to the datasets
     :return:
     """
-    extractor = extractor()
     df = pd.read_csv(paths.full_dataset)
+    extractor = extractor()
     print(df.shape)
-    df[col_name] = df['Plot'].progress_apply(extractor.sentence_process, **{'k':2})
+    df[col_name] = df['clean_Plot'].progress_apply(extractor.sentence_process, **{'k':2})
     df.to_csv(paths.full_dataset)
 
