@@ -31,12 +31,13 @@ class T5_trainer():
         self.model = PlotGenerationModel(self.model_name)
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         self.training_args = TrainingArguments(**args.T5.train_args)
-        self.tranier =  Trainer(
+        self.organize_dataset(self.args.T5.input_cols)
+        self.trainer = Trainer(
         model=self.model, args=self.training_args,
         train_dataset = self.tokenized_datasets['train'],
         eval_dataset = self.tokenized_datasets['validation'],
         # compute_metrics=metric_fn,
-        data_collator=self.collate_fn
+        # data_collator=self.collate_fn
     )
 
 
@@ -45,10 +46,10 @@ class T5_trainer():
         :param input_cols: data columns in the dataframe
         :return: saves original dataframe and tokenized datasets for the model
         """
-        self.df = pd.read_csv(self.args.data_paths.full_dataset)
-        train_ds = self.df[self.df['row_class']=='train'][input_cols]
-        test_ds = self.df[self.df['row_class']=='test'][input_cols]
-        val_ds = self.df[self.df['row_class']=='validation'][input_cols]
+        self.df = pd.read_csv(self.args.data_paths.filtered_dataset)
+        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']]
+        test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
+        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']]
         train_ds = Dataset.from_pandas(train_ds)
         test_ds = Dataset.from_pandas(test_ds)
         val_ds = Dataset.from_pandas(val_ds)
@@ -63,10 +64,17 @@ class T5_trainer():
         :param input_cols: data columns
         :return:
         """
-        tokenized_examples = self.tokenizer(
-            *[examples[col] for col in input_cols], truncation=True, padding="max_length",
+        tokenized_examples = \
+        self.tokenizer(
+        ' </s>'.join([f'<extra_id_{i}> ' + examples[col] for i, col in
+                              enumerate(input_cols)]), truncation = True, padding = "max_length",
         )
-        plot = examples['Plot']
+        # self.tokenizer(
+        #     *[f'<extra_id_{i}> '+examples[col] for i,col in enumerate(input_cols)], truncation=True, padding="max_length",
+        # )
+
+
+        plot = examples['clean_Plot']
         tok_plot = self.tokenizer(
             plot, truncation=True, padding="max_length"
         )['input_ids']
@@ -85,7 +93,7 @@ class T5_trainer():
             num_labels.append(len(labels))
         num_labels = max(num_labels)
         for sen in data:
-            labels = torch.stack(sen['labels'])
+            # labels = torch.stack(sen['labels'])
             add_labels = num_labels - len(labels)
             add_labels = torch.zeros((add_labels, labels.shape[1]), device=labels.device, dtype=labels.dtype)
             labels = torch.cat([labels, add_labels])
@@ -146,7 +154,7 @@ class repetitions():
         all_plots = ''
         for plot in plots:
             all_plots += plot + ' '
-        unigrams = self.get_ngrams(all_plots,n=1)
+        unigrams = self.get_ngrams(all_plots, n=1)
         bigrams = self.get_ngrams(all_plots, n=2)
         trigrams = self.get_ngrams(all_plots, n=3)
         results = {}

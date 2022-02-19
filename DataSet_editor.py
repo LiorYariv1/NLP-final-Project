@@ -4,6 +4,7 @@ import json
 from tqdm.notebook import tqdm
 tqdm.pandas()
 import re
+import  numpy as np
 
 
 def combine_datasets (paths):
@@ -31,7 +32,7 @@ def combine_datasets (paths):
     wiki_df = wiki_df[~wiki_df.Title.isin(joined.Title.values)][wiki_df.Genre != 'unknown']
     wiki_df = wiki_df.rename(columns={'Genre':'genres'})
     all_movies=  wiki_df[['Title','genres','Plot']].append(joined[['Title','genres','Plot']])
-    all_movies.to_csv(paths.full_dataset)
+    all_movies.to_csv(paths.full_dataset, index=False)
 
 def clean_func(text):
     if text[:11] == "As describe":
@@ -48,7 +49,7 @@ def clean_func(text):
 def clean_data(paths):
     all_movies = pd.read_csv(paths.full_dataset)
     all_movies['clean_Plot'] = all_movies['Plot'].apply(clean_func)
-    all_movies.to_csv(paths.full_dataset)
+    all_movies.to_csv(paths.full_dataset, index=False)
 
 def proccess_genres_func(text):
     if ((not (text)) or (str(text).lower()=="nan")):
@@ -85,8 +86,10 @@ def proccess_genres_func(text):
         new_g_list.append('sport')
     if 'thriller' in text:
         new_g_list.append('thriller')
-    if 'war' in text:  ## war, western?
+    if 'war' in text:
         new_g_list.append('war')
+    if 'western' in text:
+        new_g_list.append('western')
 
     # if type(new_g_list)=='NoneType' or len(new_g_list)<1:
     #     return None
@@ -114,16 +117,23 @@ def proccess_genres_func(text):
 def proccess_genres(paths):
     all_movies = pd.read_csv(paths.full_dataset)
     all_movies['new_genres'] = all_movies['genres'].apply(proccess_genres_func)
-    print(all_movies['new_genres'].values)
-    all_movies.to_csv(paths.full_dataset)
+    # print(all_movies['new_genres'].values)
+    all_movies.to_csv(paths.full_dataset, index=False)
+
+    all_movies['num_genres'] = all_movies['new_genres'].apply(lambda x: len(x.split(',')))
+    all_movies = all_movies[all_movies['num_genres'] <= 3]
+    all_movies.to_csv(paths.filtered_dataset, index=False)
 
 
-
-
-def decide_train_test_sets(paths):  ##FIXME
-    df = pd.read_csv(paths.full_dataset)
-    # train = df.sample(frac=0.7, random_state=43)    df = pd.read_csv(paths.full_dataset)
-    df['row_class'] = 'train'
+def decide_train_test_sets(args):
+    df = pd.read_csv(args.data_paths.filtered_dataset)
+    print("before dropna: ", df.shape)
+    df = df.dropna()
+    print("after dropna: ", df.shape)
+    df['rand_num'] = np.random.rand(df.shape[0])
+    df['row_class'] = df.rand_num.apply(lambda x: 'train' if x <= args.dataset.train_prcnt \
+        else 'test' if x <= args.dataset.train_prcnt+args.dataset.test_prcnt else 'val')
+    df.to_csv(args.data_paths.filtered_dataset, index=False)
 
 def kw_extraction(extractor,paths,col_name):
     """
@@ -133,9 +143,9 @@ def kw_extraction(extractor,paths,col_name):
     :param col_name:  col name to add to the datasets
     :return:
     """
-    df = pd.read_csv(paths.full_dataset)
+    df = pd.read_csv(paths.filtered_dataset)
     extractor = extractor()
     print(df.shape)
     df[col_name] = df['clean_Plot'].progress_apply(extractor.sentence_process, **{'k':2})
-    df.to_csv(paths.full_dataset)
+    df.to_csv(paths.filtered_dataset)
 

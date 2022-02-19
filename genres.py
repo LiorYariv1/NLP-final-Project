@@ -1,6 +1,7 @@
 
 import pandas as pd
 #%%
+import pandas as pd
 df = pd.read_csv('/home/student/project/data/full_dataset.csv')
 #%%
 df = df[~df.genres.isna()]
@@ -101,7 +102,66 @@ print(text3)
 #%%
 new_genres = df['new_genres'].values
 #%%
-df[df['new_genres']==None].shape
+# df[df['new_genres']==nan][['Plot','genres','new_genres']]
+df[['genres','new_genres']][150:200]
 #%%
-lst = list(set(list(df['new_genres'])))
+# df[df['genres']=='western']['genres']
+# print(df[df['genres']=='western']['genres'].shape)
+print(df[df['new_genres']=='war']['genres'].shape)
+# print(df['war' is in df['new_genres']].shape)
+#%%
+print(df[(df['genres'].str.contains('adventure')) | (df['genres']=='adventure')]['genres'].shape)
+# print(df[(df['genres'].str.contains('adventure'))]['genres'].shape)
+# print(df[(df['genres']=='music') | (df['genres']=='musical')]['genres'].shape)
+# print(df[df['new_genres']=='thriller']['genres'].shape)
+#%%
+print(df['new_genres'].shape)
+print(df['new_genres'].dropna().shape)
+#%%
+tmp = set(df[df.new_genres.isna()]['genres'].values)
+#%%
+tmp
+#%%
+# df[df['genres'].str.contains("thrill")]['genres'].values
+df[df.new_genres.str.contains("comedy")]
+#%%
+df2 = df[~df['new_genres'].isna()]
+df2.shape
+#%%
+lst = set(df2['new_genres'].values)
 lst
+#%%
+df2['try'] = df2['new_genres'].apply(lambda x: len(x.split(',')))
+#%%
+df2[df2['try']<=3].shape
+#%%
+newset = set(df2[df2['try']<=3]['new_genres'].values)
+#%%
+newset
+#%%
+df2.columns
+#%%
+df2 = df2[df2['try']<=3]
+print(df2.shape)
+#%%
+df2 = df2[['Title', 'genres', 'Plot', 'kw_kb_1', 'kw_Rake_1', 'row_class', 'clean_Plot', 'new_genres']]
+#%%
+df2.to_csv('/home/student/project/data/filtered_dataset.csv', index=False)
+print("done")
+#%%
+import numpy as np
+df2['rand_num'] = np.random.rand(df2.shape[0])
+#%%
+df2['row_class'] = df2.rand_num.apply(lambda x: 'train' if x<=0.7 else 'test' if x<=0.85 else 'val')
+#%%
+df2[['row_class','rand_num']]
+#%%
+print(df2[df2['row_class']=='train'].shape)
+print(df2[df2['row_class']=='test'].shape)
+print(df2[df2['row_class']=='val'].shape)
+#%%
+df2[['clean_Plot', 'kw_kb_1', 'kw_Rake_1', 'new_genres']][1004:1005].values
+#%%
+# df2.shape()
+tmpdf = df2[df2['kw_kb_1'].isna()].shape
+
