@@ -28,7 +28,7 @@ class T5_trainer():
         self.args = args
         self.model_name = args.T5.model_name
         self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-        self.model = PlotGenerationModel(self.model_name)
+        self.model = PlotGenerationModel(self.model_name, self.model_name)
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         self.training_args = TrainingArguments(**args.T5.train_args)
         self.organize_dataset(self.args.T5.input_cols)
@@ -36,8 +36,8 @@ class T5_trainer():
         model=self.model, args=self.training_args,
         train_dataset = self.tokenized_datasets['train'],
         eval_dataset = self.tokenized_datasets['validation'],
-        # compute_metrics=metric_fn,
-        # data_collator=self.collate_fn
+        # compute_metrics = metric_fn,
+        data_collator=self.collate_fn
     )
 
 
@@ -47,9 +47,9 @@ class T5_trainer():
         :return: saves original dataframe and tokenized datasets for the model
         """
         self.df = pd.read_csv(self.args.data_paths.filtered_dataset)
-        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']]
-        test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
-        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']]
+        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']][0:20]
+        test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']][0:5]
+        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']][0:5]
         train_ds = Dataset.from_pandas(train_ds)
         test_ds = Dataset.from_pandas(test_ds)
         val_ds = Dataset.from_pandas(val_ds)
@@ -66,17 +66,12 @@ class T5_trainer():
         """
         tokenized_examples = \
         self.tokenizer(
-        ' </s>'.join([f'<extra_id_{i}> ' + examples[col] for i, col in
-                              enumerate(input_cols)]), truncation = True, padding = "max_length",
+        ' </s> '.join([f'<extra_id_{i}> ' + examples[col] for i, col in
+                              enumerate(input_cols)]), truncation=True
         )
-        # self.tokenizer(
-        #     *[f'<extra_id_{i}> '+examples[col] for i,col in enumerate(input_cols)], truncation=True, padding="max_length",
-        # )
-
-
         plot = examples['clean_Plot']
         tok_plot = self.tokenizer(
-            plot, truncation=True, padding="max_length"
+            plot, truncation=True
         )['input_ids']
         tokenized_examples['labels'] = tok_plot
         return tokenized_examples
@@ -88,16 +83,27 @@ class T5_trainer():
         """
         out = {}
         num_labels = []
+        num_input_ids = []
         for sen in data:
             labels = sen['labels']
             num_labels.append(len(labels))
+            num_input_ids.append(len(sen['input_ids']))
         num_labels = max(num_labels)
+        num_input_ids = max(num_input_ids)
         for sen in data:
-            # labels = torch.stack(sen['labels'])
+            labels = sen['labels']
             add_labels = num_labels - len(labels)
-            add_labels = torch.zeros((add_labels, labels.shape[1]), device=labels.device, dtype=labels.dtype)
+            add_labels = torch.zeros(add_labels, device=labels.device, dtype=labels.dtype)
             labels = torch.cat([labels, add_labels])
             sen['labels'] = labels
+            input_ids = sen['input_ids']
+            attention_mask = sen['attention_mask']
+            add_input_ids = num_input_ids - len(input_ids)
+            add_input_ids = torch.zeros(add_input_ids, device=input_ids.device, dtype=input_ids.dtype)
+            input_ids = torch.cat([input_ids, add_input_ids])
+            attention_mask = torch.cat([attention_mask, add_input_ids])
+            sen['input_ids'] = input_ids
+            sen['attention_mask'] = attention_mask
         for k in data[0]:
             out[k] = torch.stack([f[k] for f in data])
         return out
@@ -106,22 +112,23 @@ class T5_trainer():
 
 class PlotGenerationModel(nn.Module):
 
-    def __init__(self, model_name):
+    def __init__(self, model_path, model_name):
         super(PlotGenerationModel, self).__init__()
-        self.model = AutoModelWithLMHead.from_pretrained(model_name)
-        self.model: AutoModelWithLMHead
+        self.model = AutoModelWithLMHead.from_pretrained(model_path)
+        # self.model: AutoModelWithLMHead
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    def forward(self, input_ids, attention_mask, labels):
-        if self.model.train(): ##TODO check
+    def forward(self, input_ids, attention_mask, labels=None):
+        if self.model.training: ##TODO check
             labels = labels.squeeze(1)
             ans = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
             return ans
         else:
-            gen_pred = self.model.generate(input_ids=input_ids, attention_mask=attention_mask,
-                                           return_dict_in_generate=True)
-            gen_pred['loss'] = torch.zeros(0).to(self.model.device)
-            return gen_pred
+            with torch.no_grad():
+                gen_pred = self.model.generate(input_ids=input_ids, attention_mask=attention_mask,
+                                               return_dict_in_generate=True)
+                gen_pred['loss'] = torch.zeros(0).to(self.model.device)
+                return gen_pred
 
 
 

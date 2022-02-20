@@ -2,7 +2,7 @@
 import pandas as pd
 #%%
 import pandas as pd
-df = pd.read_csv('/home/student/project/data/full_dataset.csv')
+df = pd.read_csv('/home/student/project/data/filtered_dataset.csv')
 #%%
 df = df[~df.genres.isna()]
 df['genres'] = df.genres.apply(lambda x: x.lower())
@@ -164,4 +164,24 @@ df2[['clean_Plot', 'kw_kb_1', 'kw_Rake_1', 'new_genres']][1004:1005].values
 #%%
 # df2.shape()
 tmpdf = df2[df2['kw_kb_1'].isna()].shape
-
+#%%
+from T5 import T5_trainer, PlotGenerationModel
+#%%
+new_model = PlotGenerationModel('/home/student/project/model1902/', 't5-base')
+#%%
+print("oooo")
+#%%
+txt = "<extra_id_0> Fire King </s> <extra_id_1> drama </s> <extra_id_2> fire, running, kingdom, omri, soup"
+#%%
+txt = new_model.tokenizer(txt, return_tensors="pt")
+#%%
+new_model.model.eval()
+new_model.model.training
+res = new_model(**txt)
+#%%
+new_model.tokenizer.decode(res[0][0])
+#%%
+df[df['row_class']=='train'][['Title', 'new_genres', 'kw_Rake_1']+['clean_Plot']][3:4].values
+#%%
+txt = "<extra_id_0> The Adventures of Dollie </s><extra_id_1> drama </s><extra_id_2>" \
+      " outing, river, gypsy, wares, rob, mother, devises, plan, parents, distracted, organized, camp, barrel, camp, escapes, wagon, river, water, barrel, dollie, dollie, parents"

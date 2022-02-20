@@ -16,16 +16,22 @@ T5:
 #  input_cols: ['Title', 'new_genres', 'kw_kb_1']
   model_save_path: /home/student/project/model1902
 
-
   train_args:
     output_dir: results
     overwrite_output_dir: True
-    per_device_train_batch_size: 1
-    per_device_eval_batch_size: 1
+    per_device_train_batch_size: 2
+    per_device_eval_batch_size: 2
     save_strategy: 'no'
     metric_for_best_model: 'dev_f1'  #FIXME: change to the metric of the article
-    greater_is_better: True #FIXME - according to metric
+    greater_is_better: True  #FIXME - according to metric
     evaluation_strategy: 'epoch'
     do_train: True
-    num_train_epochs: 4
-    report_to: 'none'
+    num_train_epochs: 1
+    report_to: 'wandb'
+
+w_and_b:
+  project: NLP_project_PlotGenerator
+  entity: nlp_final_project
+  group: run1
+  job_type: rake
+  mode: online

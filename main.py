@@ -7,6 +7,7 @@ from transformers import AutoTokenizer
 from T5 import T5_trainer, PlotGenerationModel
 from datasets import load_metric
 import numpy as np
+import wandb
 
 
 if __name__ =='__main__' :
@@ -17,6 +18,11 @@ if __name__ =='__main__' :
     parse_args = parser.parse_args()
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
+
+    wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
+               job_type=args.w_and_b.job_type, entity=args.w_and_b.entity,  # ** we added entity, mode
+               mode=args.w_and_b.mode, reinit=True)
+    # wandb.config.update(args.w_and_b)#FIXME
 
     # combine_datasets(args.data_paths)
 
@@ -35,7 +41,7 @@ if __name__ =='__main__' :
     T5_obj = T5_trainer(args)
     print("T5_obj Done")
     T5_obj.trainer.train()
-    T5_obj.model.save_pretrained(args.T5.model_save_path)
+    T5_obj.model.model.save_pretrained(args.T5.model_save_path)
     # # input_cols = ['Title', 'genres', 'Plot']
    # # T5_obj.organize_dataset(input_cols)
     print("OMST<3")
