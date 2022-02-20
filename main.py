@@ -18,10 +18,8 @@ if __name__ =='__main__' :
     parse_args = parser.parse_args()
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
+    wandb.login()
 
-    wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
-               job_type=args.w_and_b.job_type, entity=args.w_and_b.entity,  # ** we added entity, mode
-               mode=args.w_and_b.mode, reinit=True)
     # wandb.config.update(args.w_and_b)#FIXME
 
     # combine_datasets(args.data_paths)
@@ -37,13 +35,31 @@ if __name__ =='__main__' :
 
     # decide_train_test_sets(args)
 
+
     # # T5
-    T5_obj = T5_trainer(args)
+    kw_type = 'kw_Rake_1'
+    wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
+               job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
+               mode=args.w_and_b.mode, reinit=True)
+    T5_obj = T5_trainer(args, kw_type)
     print("T5_obj Done")
     T5_obj.trainer.train()
-    T5_obj.model.model.save_pretrained(args.T5.model_save_path)
-    # # input_cols = ['Title', 'genres', 'Plot']
-   # # T5_obj.organize_dataset(input_cols)
+    T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
+    wandb.finish()
+    print(f"First model DONE -  {args.T5.model_save_path}__{kw_type}")
+
+    kw_type = 'kw_kb_1'
+    wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
+               job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
+               mode=args.w_and_b.mode, reinit=True)
+    T5_obj = T5_trainer(args, kw_type)
+    print("T5_obj Done")
+    T5_obj.trainer.train()
+    T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
+    wandb.finish()
+    print(f"Second model DONE -  {args.T5.model_save_path}__{kw_type}")
+
+
     print("OMST<3")
 
     # model = PlotGenerationModel(args.T5.model_name)
