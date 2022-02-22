@@ -28,16 +28,16 @@ if __name__ =='__main__' :
 
     # proccess_genres(args.data_paths)
 
-    decide_train_test_sets(args,save_path='filtered_dataset_3_30',filter_len=True)
+    # decide_train_test_sets(args,save_path='filtered_dataset_3_30',filter_len=True)
     #
-    print("Start keywords . . . ")
-    print("type: sentence_process, kw_Rake_1_per_sen")
-    kw_extraction(Rake_extractor,args,'kw_Rake_1_per_sen', 1, process_type='sentence_process') ##one-time-run
-    print("1 done")
-    print("type: parts_process, kw_Rake_p3")
-    kw_extraction(Rake_extractor,args,'kw_Rake_p3', 3, process_type='parts_process') ##one-time-run
-    print("2 done")
-    print("Rake DONE")
+    # print("Start keywords . . . ")
+    # print("type: sentence_process, kw_Rake_1_per_sen")
+    # kw_extraction(Rake_extractor,args,'kw_Rake_1_per_sen', 1, process_type='sentence_process') ##one-time-run
+    # print("1 done")
+    # print("type: parts_process, kw_Rake_p3")
+    # kw_extraction(Rake_extractor,args,'kw_Rake_p3', 3, process_type='parts_process') ##one-time-run
+    # print("2 done")
+    # print("Rake DONE")
 
     ##KEYBERT
     # kw_extraction(keybert_extractor,args.data_paths,'kw_kb_1', k_kw_for_sen) ##one-time-run
@@ -46,16 +46,16 @@ if __name__ =='__main__' :
     #
     # # T5
 
-    kw_type = 'kw_Rake_p3'
-    wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
-               job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
-               mode=args.w_and_b.mode, reinit=True)
-    T5_obj = T5_trainer(args, kw_type)
-    print("T5_obj Done")
-    T5_obj.trainer.train()
-    T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
-    wandb.finish()
-    print(f"First model DONE -  {args.T5.model_save_path}__{kw_type}")
+    # kw_type = 'kw_Rake_p3'
+    # wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
+    #            job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
+    #            mode=args.w_and_b.mode, reinit=True)
+    # T5_obj = T5_trainer(args, kw_type)
+    # print("T5_obj Done")
+    # T5_obj.trainer.train()
+    # T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
+    # wandb.finish()
+    # print(f"First model DONE -  {args.T5.model_save_path}__{kw_type}")
 
     kw_type = 'kw_Rake_1_per_sen'
     wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
