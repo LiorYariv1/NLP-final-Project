@@ -125,17 +125,20 @@ def proccess_genres(paths):
     all_movies.to_csv(paths.filtered_dataset, index=False)
 
 
-def decide_train_test_sets(args):
+def decide_train_test_sets(args, save_path, filter_len=True):
     df = pd.read_csv(args.data_paths.filtered_dataset)
     print("before dropna: ", df.shape)
     df = df.dropna()
     print("after dropna: ", df.shape)
+    if filter_len:
+        df['len']=df['clean_Plot'].apply(lambda x: len(x.split('. ')))
+        df = df[(df.len>=args.T5.min_len)&(df.len<=args.T5.max_len)]
     df['rand_num'] = np.random.rand(df.shape[0])
     df['row_class'] = df.rand_num.apply(lambda x: 'train' if x <= args.dataset.train_prcnt \
         else 'test' if x <= args.dataset.train_prcnt+args.dataset.test_prcnt else 'val')
-    df.to_csv(args.data_paths.filtered_dataset, index=False)
+    df.to_csv(args.data_paths[save_path], index=False)
 
-def kw_extraction(extractor,paths,col_name):
+def kw_extraction(extractor,args,col_name, f_num=1, process_type='sentence_process'):
     """
     adds a column named col_name with the extracted kwywords using keybert
     TODO: decide if to add a type var that will determine what process function to call for in kbextractor
@@ -143,9 +146,12 @@ def kw_extraction(extractor,paths,col_name):
     :param col_name:  col name to add to the datasets
     :return:
     """
-    df = pd.read_csv(paths.filtered_dataset)
+    df = pd.read_csv(args.data_paths[args.T5.run_ds])
     extractor = extractor()
     print(df.shape)
-    df[col_name] = df['clean_Plot'].progress_apply(extractor.sentence_process, **{'k':2})
-    df.to_csv(paths.filtered_dataset)
+    if process_type=='sentence_process':
+        df[col_name] = df['clean_Plot'].progress_apply(extractor.sentence_process, **{'k':f_num})
+    elif process_type=='parts_process':
+        df[col_name] = df['clean_Plot'].progress_apply(extractor.parts_process, **{'p':f_num})
+    df.to_csv(args.data_paths[args.T5.run_ds])
 

@@ -2,7 +2,7 @@ from datasets import load_dataset
 
 # model_name = 't5-small'
 
-from transformers import AutoTokenizer, AutoModelWithLMHead , TrainingArguments, Trainer, T5Tokenizer
+from transformers import T5ForConditionalGeneration, AutoModelWithLMHead , TrainingArguments, Trainer, T5Tokenizer
 from torch import nn
 import torch
 from pathlib import Path
@@ -49,7 +49,7 @@ class T5_trainer():
         :param input_cols: data columns in the dataframe
         :return: saves original dataframe and tokenized datasets for the model
         """
-        self.df = pd.read_csv(self.args.data_paths.filtered_dataset)
+        self.df = pd.read_csv(self.args.data_paths[self.args.T5.run_ds])
         train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']]
         test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
         val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']]
@@ -117,9 +117,9 @@ class PlotGenerationModel(nn.Module):
 
     def __init__(self, model_path, model_name):
         super(PlotGenerationModel, self).__init__()
-        self.model = AutoModelWithLMHead.from_pretrained(model_path)
+        self.model = T5ForConditionalGeneration.from_pretrained(model_path)
         # self.model: AutoModelWithLMHead
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = T5Tokenizer.from_pretrained(model_name)
 
     def forward(self, input_ids, attention_mask, labels=None):
         # if self.model.training: ##TODO check

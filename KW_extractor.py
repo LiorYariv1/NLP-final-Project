@@ -1,5 +1,6 @@
 from keybert import KeyBERT
 import RAKE
+import numpy as np
 
 class keybert_extractor():
     def __init__(self, model='bert-base-uncased'):
@@ -20,9 +21,23 @@ class keybert_extractor():
         n=len(split)
         return self.extract(split, n*[k])
 
-    def thirds_process(self,txt): ##TODO: complete the function
-        sentences = txt.split('.')
+    def parts_process(self,txt, p): ##TODO: complete the function
+        sentences = txt.split('. ')
         n = len(sentences)
+        tmp_n = (n-2)//(p-1)
+        split = [sentences[0], sentences[1]]
+        if tmp_n>0:
+            split += ['. '.join(sentences[2+i*tmp_n:2+(i+1)*tmp_n]) for i in range(p-2)]
+        split += ['. '.join(sentences[2+(p-2)*tmp_n:])]
+        n_list = [(1,1,1), (1,1,1)]
+        if n<=15:
+            x = int(np.ceil(tmp_n*0.8))
+            n_list += [(x if x > 0 else 1, 1, 1)] * (len(split) - 2)
+        else:
+            x = int(np.floor(tmp_n * 0.3))
+            n_list += [(x if x > 0 else 1, 1, 1)] * (len(split) - 2)
+        return self.extract(split, n_list)
+
 
     def extract(self,txt_list,n_list):
         """
@@ -57,6 +72,23 @@ class Rake_extractor():
     def thirds_process(self,txt): ##TODO: complete the function
         sentences = txt.split('.')
         n = len(sentences)
+
+    def parts_process(self,txt, p): ##TODO: complete the function
+        sentences = txt.split('. ')
+        n = len(sentences)
+        tmp_n = (n-2)//(p-1)
+        split = [sentences[0], sentences[1]]
+        if tmp_n>0:
+            split += ['. '.join(sentences[2+i*tmp_n:2+(i+1)*tmp_n]) for i in range(p-2)]
+        split += ['. '.join(sentences[2+(p-2)*tmp_n:])]
+        n_list = [(1,1,1), (1,1,1)]
+        if n<=15:
+            x = int(np.ceil(tmp_n*0.8))
+            n_list += [(x if x>0 else 1, 1,1)]*(len(split)-2)
+        else:
+            x=int(np.floor(tmp_n*0.3))
+            n_list += [(x if x>0 else 1, 1,1)]*(len(split)-2)
+        return self.extract(split, n_list)
 
     def extract(self,txt_list,n_list):
         """

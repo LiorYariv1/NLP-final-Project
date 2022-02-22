@@ -7,7 +7,7 @@ df = pd.read_csv('/home/student/project/data/filtered_dataset.csv')
 df = df[~df.genres.isna()]
 df['genres'] = df.genres.apply(lambda x: x.lower())
 #%%
-df['len'] = df.Plot.apply(lambda x: len(x.split('. ')))
+df['len'] = df.clean_Plot.apply(lambda x: len(x.split('. ')))
 #%%
 genres = df['genres'].values
 #%%
@@ -174,6 +174,22 @@ print("oooo")
 txt = "<extra_id_0> Fire King </s> <extra_id_1> drama </s> <extra_id_2> fire, running, kingdom, omri, soup"
 #%%
 txt = new_model.tokenizer(txt, return_tensors="pt")
+
+#%%
+df[df['row_class']=='train'][['Title', 'new_genres', 'kw_Rake_1']+['clean_Plot']][3:4].values
+#%%
+txt = "<extra_id_0> The Adventures of Dollie </s><extra_id_1> drama </s><extra_id_2>" \
+      " outing, river, gypsy, wares, rob, mother, devises, plan, parents, distracted, organized, camp, barrel, camp, escapes, wagon, river, water, barrel, dollie, dollie, parents"
+#%%
+from T5 import T5_trainer, PlotGenerationModel
+#%%
+new_model = PlotGenerationModel('/home/student/project/model1902__kw_Rake_1/', 't5-base')
+#%%
+txt = "<extra_id_0> Fire King </s> <extra_id_1> drama </s> <extra_id_2> fire, running, kingdom, omri, soup"
+txt = new_model.tokenizer(txt, return_tensors="pt")
+#%%
+txt = "<extra_id_0> The skinni girl </s> <extra_id_1> comedy </s> <extra_id_2> spider, omri, pizza, drink, sleep, bite, radioactive, girl, Jane, ginger, building, web, aunt"
+txt = new_model.tokenizer(txt, return_tensors="pt")
 #%%
 new_model.model.eval()
 new_model.model.training
@@ -181,7 +197,54 @@ res = new_model(**txt)
 #%%
 new_model.tokenizer.decode(res[0][0])
 #%%
-df[df['row_class']=='train'][['Title', 'new_genres', 'kw_Rake_1']+['clean_Plot']][3:4].values
+df['len'].describe()
 #%%
-txt = "<extra_id_0> The Adventures of Dollie </s><extra_id_1> drama </s><extra_id_2>" \
-      " outing, river, gypsy, wares, rob, mother, devises, plan, parents, distracted, organized, camp, barrel, camp, escapes, wagon, river, water, barrel, dollie, dollie, parents"
+df[(df['len']>1) & (df['len']<30)].shape
+#%%
+df[(df['len']>25)].shape
+#%%
+new_model = PlotGenerationModel('/home/student/project/results__kw_Rake_1/checkpoint-93035/', 't5-base')
+#%%
+import argparse
+from box import Box
+import yaml
+from transformers import trainer, Trainer, AutoModelWithLMHead
+#%%
+parser = argparse.ArgumentParser(description='argument parser')
+parser.add_argument("--mode", default='client')
+parser.add_argument('--config', default='config.yaml', type=str,
+                    help='Path to YAML config file. Defualt: config.yaml')
+parse_args = parser.parse_args()
+with open(parse_args.config) as f:
+    args = Box(yaml.load(f, Loader=yaml.FullLoader))
+#%%
+kw_type = 'kw_Rake_1'
+T5_obj = T5_trainer(args, kw_type)
+print("T5_obj Done")
+#%%
+T5_obj.trainer.train('/home/student/project/results__kw_Rake_1/checkpoint-93035/')
+#%%
+txt = "<extra_id_0> The skinni girl </s> <extra_id_1> comedy </s> <extra_id_2> spider, omri, pizza, drink, sleep, bite, radioactive, girl, Jane, ginger, building, web, aunt"
+txt = T5_obj.tokenizer(txt, return_tensors="pt")
+#%%
+T5_obj.trainer.predict(T5_obj.tokenized_datasets['test'])
+
+# model = AutoModelWithLMHead.from_pretrained('/home/student/project/results__kw_Rake_1/checkpoint-93035')
+# model = Trainer.
+# model = trainer.
+#%%
+txt = "a. b. c. d. e. f. g. h. i. j. k."
+sentences = txt.split('. ')
+n = len(sentences)
+tmp_n = (n - 2) // (p - 1)
+split = [sentences[0], sentences[1]]
+if tmp_n > 0:
+    split += ['. '.join(sentences[2 + i * tmp_n:2 + (i + 1) * tmp_n]) for i in range(p - 2)]
+split += ['. '.join(sentences[2 + (p - 2) * tmp_n:])]
+n_list = [1, 1]
+if n <= 15:
+    x = int(np.ceil(tmp_n * 0.8))
+    n_list += [(x if x > 0 else 1, 1, 1)] * (len(split) - 2)
+else:
+    x = int(np.floor(tmp_n * 0.3))
+    n_list += [(x if x > 0 else 1, 1, 1)] * (len(split) - 2)

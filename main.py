@@ -18,7 +18,7 @@ if __name__ =='__main__' :
     parse_args = parser.parse_args()
     with open(parse_args.config) as f:
         args = Box(yaml.load(f, Loader=yaml.FullLoader))
-    wandb.login()
+    # wandb.login()
 
     # wandb.config.update(args.w_and_b)#FIXME
 
@@ -28,16 +28,25 @@ if __name__ =='__main__' :
 
     # proccess_genres(args.data_paths)
 
-    # print("Start keywords . . . ")
-    # kw_extraction(Rake_extractor,args.data_paths,'kw_Rake_1') ##one-time-run
-    # print("Rake DONE")
-    # kw_extraction(keybert_extractor,args.data_paths,'kw_kb_1') ##one-time-run
+    decide_train_test_sets(args,save_path='filtered_dataset_3_30',filter_len=True)
+    #
+    print("Start keywords . . . ")
+    print("type: sentence_process, kw_Rake_1_per_sen")
+    kw_extraction(Rake_extractor,args,'kw_Rake_1_per_sen', 1, process_type='sentence_process') ##one-time-run
+    print("1 done")
+    print("type: parts_process, kw_Rake_p3")
+    kw_extraction(Rake_extractor,args,'kw_Rake_p3', 3, process_type='parts_process') ##one-time-run
+    print("2 done")
+    print("Rake DONE")
 
-    # decide_train_test_sets(args)
+    ##KEYBERT
+    # kw_extraction(keybert_extractor,args.data_paths,'kw_kb_1', k_kw_for_sen) ##one-time-run
 
 
+    #
     # # T5
-    kw_type = 'kw_Rake_1'
+
+    kw_type = 'kw_Rake_p3'
     wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
                job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
                mode=args.w_and_b.mode, reinit=True)
@@ -48,7 +57,7 @@ if __name__ =='__main__' :
     wandb.finish()
     print(f"First model DONE -  {args.T5.model_save_path}__{kw_type}")
 
-    kw_type = 'kw_kb_1'
+    kw_type = 'kw_Rake_1_per_sen'
     wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
                job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
                mode=args.w_and_b.mode, reinit=True)
@@ -58,7 +67,7 @@ if __name__ =='__main__' :
     T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
     wandb.finish()
     print(f"Second model DONE -  {args.T5.model_save_path}__{kw_type}")
-
+    #
 
     print("OMST<3")
 
