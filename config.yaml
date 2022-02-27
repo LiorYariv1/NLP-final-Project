@@ -8,8 +8,8 @@ data_paths:
   filtered_dataset_3_30: /home/student/project/data/filtered_dataset_3_30.csv
 
 dataset:
-  train_prcnt: 0.85
-  test_prcnt: 0.075
+  train_prcnt: 0.9
+  test_prcnt: 0.05
 
 T5:
   model_name: t5-base
@@ -25,13 +25,18 @@ T5:
     overwrite_output_dir: True
     per_device_train_batch_size: 1
     per_device_eval_batch_size: 1
-    save_strategy: 'epoch'
+    save_strategy: epoch
+    warmup_steps: 1000
+    learning_rate: 1.0e-4
 #    metric_for_best_model: eval_loss  #FIXME: change to the metric of the article
 #    greater_is_better: True  #FIXME - according to metric
-    evaluation_strategy: 'epoch'
+    evaluation_strategy: steps
+    eval_steps: 1000
     do_train: True
-    num_train_epochs: 12
-    report_to: 'wandb'
+    do_eval: True
+    num_train_epochs: 10
+    report_to: wandb
+
 
 ## Config for debugging
 #  train_args:

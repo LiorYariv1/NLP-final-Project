@@ -46,19 +46,8 @@ if __name__ =='__main__' :
     #
     # # T5
 
-    # kw_type = 'kw_Rake_p3'
-    # wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
-    #            job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
-    #            mode=args.w_and_b.mode, reinit=True)
-    # T5_obj = T5_trainer(args, kw_type)
-    # print("T5_obj Done")
-    # T5_obj.trainer.train()
-    # T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
-    # wandb.finish()
-    # print(f"First model DONE -  {args.T5.model_save_path}__{kw_type}")
-
-    kw_type = 'kw_Rake_1_per_sen'
-    wandb.init(project=args.w_and_b.project, group=args.w_and_b.group,
+    kw_type = 'kw_Rake_p3'
+    wandb.init(project=args.w_and_b.project, name = '2702_final',
                job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
                mode=args.w_and_b.mode, reinit=True)
     T5_obj = T5_trainer(args, kw_type)
@@ -66,8 +55,20 @@ if __name__ =='__main__' :
     T5_obj.trainer.train()
     T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
     wandb.finish()
-    print(f"Second model DONE -  {args.T5.model_save_path}__{kw_type}")
-    #
+    print(f"First model DONE -  {args.T5.model_save_path}__{kw_type}")
+
+    # kw_type = 'kw_Rake_1_per_sen'
+    # print("Start")
+    # wandb.init(project=args.w_and_b.project, name = '2702',
+    #            job_type=kw_type, entity=args.w_and_b.entity,  # ** we added entity, mode
+    #            mode=args.w_and_b.mode)
+    # T5_obj = T5_trainer(args, kw_type)
+    # print("T5_obj Done")
+    # T5_obj.trainer.train()
+    # # T5_obj.model.model.save_pretrained(f'{args.T5.model_save_path}__{kw_type}')
+    # # wandb.finish()
+    # print(f"Second model DONE -  {args.T5.model_save_path}__{kw_type}")
+    # #
 
     print("OMST<3")
 

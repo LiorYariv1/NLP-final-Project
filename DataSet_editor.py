@@ -101,18 +101,7 @@ def proccess_genres_func(text):
     for g in new_g_list:
         new_g += ", "+g if new_g!="" else g
     return new_g
-# Action, Crime, Fantasy, Horror, Romance, Science Fiction, Slice of Life, Sports, Thriller, War and Western
 
-# 'rom-com' -> 'romance, comedy'
-# 'rom com' -> 'romance, comedy'
-# 'war drama' -> 'war, drama'
-# 'sci-fi' -> 'science fiction'
-# '/' -> ', '
-# '-' -> ', '
-# 'romantic' -> 'romance'
-# 'sports' -> 'sport'
-# #NOT str.contains('drama') -> 'drama' #NOT
-# ['drama horror thriller film']
 
 def proccess_genres(paths):
     all_movies = pd.read_csv(paths.full_dataset)
@@ -131,8 +120,14 @@ def decide_train_test_sets(args, save_path, filter_len=True):
     df = df.dropna()
     print("after dropna: ", df.shape)
     if filter_len:
+        # filter - keep rows only where plots with len between min_len to max_len
         df['len']=df['clean_Plot'].apply(lambda x: len(x.split('. ')))
         df = df[(df.len>=args.T5.min_len)&(df.len<=args.T5.max_len)]
+        # filter - keep rows only where tokenization<512
+        from transformers import T5Tokenizer
+        tokenizer = T5Tokenizer.from_pretrained(args.T5.model_name)
+        df['tok_length'] = df['clean_Plot'].apply(lambda x: len(tokenizer(x)['input_ids']))
+        df = df[df['tok_length']<512]
     df['rand_num'] = np.random.rand(df.shape[0])
     df['row_class'] = df.rand_num.apply(lambda x: 'train' if x <= args.dataset.train_prcnt \
         else 'test' if x <= args.dataset.train_prcnt+args.dataset.test_prcnt else 'val')

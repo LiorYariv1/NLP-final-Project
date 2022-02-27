@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="aac1ab3b-4dc9-4c30-b5ad-64613d095882" name="NLP_Project">
+        <fileTransfer accessType="SFTP" host="nlpgpu2021w-0013.eastus.cloudapp.azure.com" port="22" sshConfigId="794dfb2f-6909-42c2-9bcd-1b870ed855ca" sshConfig="student@nlpgpu2021w-0013.eastus.cloudapp.azure.com:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

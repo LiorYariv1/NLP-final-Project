@@ -39,8 +39,8 @@ class T5_trainer():
         model=self.model, args=self.training_args,
         train_dataset = self.tokenized_datasets['train'],
         eval_dataset = self.tokenized_datasets['validation'],
-        # compute_metrics = self.repetitions.eval,
-        data_collator = self.collate_fn
+        compute_metrics = self.repetitions.eval,
+        # data_collator = self.collate_fn
         )
 
 
@@ -74,7 +74,7 @@ class T5_trainer():
         )
         plot = examples['clean_Plot']
         tok_plot = self.tokenizer(
-            plot, truncation=True
+            plot, truncation=True, padding='max_length'
         )['input_ids']
         tokenized_examples['labels'] = tok_plot
         return tokenized_examples
@@ -85,20 +85,21 @@ class T5_trainer():
         :return:
         """
         out = {}
-        num_labels = []
+        # num_labels = []
         num_input_ids = []
         for sen in data:
-            labels = sen['labels']
-            num_labels.append(len(labels))
+            # labels = sen['labels']
+            # num_labels.append(len(labels))
             num_input_ids.append(len(sen['input_ids']))
-        num_labels = max(num_labels)
+        # max_num = max(max(num_labels),max(num_input_ids))
         num_input_ids = max(num_input_ids)
+        # num_input_ids = max(num_input_ids)
         for sen in data:
-            labels = sen['labels']
-            add_labels = num_labels - len(labels)
-            add_labels = torch.zeros(add_labels, device=labels.device, dtype=labels.dtype)
-            labels = torch.cat([labels, add_labels])
-            sen['labels'] = labels
+            # labels = sen['labels']
+            # add_labels = max_num - len(labels)
+            # add_labels = -100*torch.ones(add_labels, device=labels.device, dtype=labels.dtype)
+            # labels = torch.cat([labels, add_labels])
+            # sen['labels'] = labels
             input_ids = sen['input_ids']
             attention_mask = sen['attention_mask']
             add_input_ids = num_input_ids - len(input_ids)
@@ -122,8 +123,8 @@ class PlotGenerationModel(nn.Module):
         self.tokenizer = T5Tokenizer.from_pretrained(model_name)
 
     def forward(self, input_ids, attention_mask, labels=None):
-        # if self.model.training: ##TODO check
-        if labels is not None:
+        if self.model.training: ##TODO check
+        # if labels is not None:
             labels = labels.squeeze(1)
             ans = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels,return_dict=True)
             return ans
@@ -175,7 +176,7 @@ class repetitions():
         for n,res in zip([1,2,3],[unigrams,bigrams,trigrams]):
             num = len(res)
             cur_sum = sum([res[x] for x in res])
-            results[f'inter_{n}'] = (1.0-float(num))/float(cur_sum)
+            results[f'inter_{n}'] = 1.0-(float(num)/float(cur_sum))
         return results
 
     def eval(self, output):
@@ -189,3 +190,5 @@ class repetitions():
             res[f'intra_{n}_mean'] = tmp['mean']
             res[f'intra_{n}_min'] = tmp['min']
             res[f'intra_{n}_max'] = tmp['max']
+        return res
+

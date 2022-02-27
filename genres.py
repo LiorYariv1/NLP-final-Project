@@ -2,7 +2,7 @@
 import pandas as pd
 #%%
 import pandas as pd
-df = pd.read_csv('/home/student/project/data/filtered_dataset.csv')
+df = pd.read_csv('/home/student/project/data/filtered_dataset_3_30.csv')
 #%%
 df = df[~df.genres.isna()]
 df['genres'] = df.genres.apply(lambda x: x.lower())
@@ -180,8 +180,7 @@ df[df['row_class']=='train'][['Title', 'new_genres', 'kw_Rake_1']+['clean_Plot']
 #%%
 txt = "<extra_id_0> The Adventures of Dollie </s><extra_id_1> drama </s><extra_id_2>" \
       " outing, river, gypsy, wares, rob, mother, devises, plan, parents, distracted, organized, camp, barrel, camp, escapes, wagon, river, water, barrel, dollie, dollie, parents"
-#%%
-from T5 import T5_trainer, PlotGenerationModel
+
 #%%
 new_model = PlotGenerationModel('/home/student/project/model1902__kw_Rake_1/', 't5-base')
 #%%
@@ -248,3 +247,41 @@ if n <= 15:
 else:
     x = int(np.floor(tmp_n * 0.3))
     n_list += [(x if x > 0 else 1, 1, 1)] * (len(split) - 2)
+#%%
+print("nisayon omst <3<3")
+#%%
+from T5 import T5_trainer, PlotGenerationModel
+#%%
+txt = '<extra_id_0> Avatar </s> <extra_id_1> science fiction, thriller </s> <extra_id_2> cybernet, sims, sim, leaders'
+#%%
+p3_model = PlotGenerationModel('/home/student/project/model1902__kw_Rake_p3', 't5-base')
+#%%
+txt = p3_model.tokenizer(txt, return_tensors="pt")
+#%%
+res=p3_model(**txt)
+#%%
+p3_model.tokenizer.decode(res[0][0])
+#%%
+#%%
+import pandas as pd
+df = pd.read_csv('/home/student/project/data/filtered_dataset.csv')
+df.columns
+#%%
+from transformers import T5Tokenizer
+model_name = 't5-base'
+tokenizer = T5Tokenizer.from_pretrained(model_name)
+#%%
+from tqdm.notebook import tqdm
+tqdm.pandas()
+#%%
+df['tok_length'] = df['clean_Plot'].progress_apply(lambda x: len(tokenizer(x)['input_ids']))
+#%%
+df[df['tok_length']<=512]
+#%%
+beam_outputs = model.generate(
+    input_ids,
+    max_length=50,
+    num_beams=5,
+    no_repeat_ngram_size=2,
+    num_return_sequences=5,
+)
