@@ -69,7 +69,7 @@ class T5_trainer():
         """
         tokenized_examples = \
         self.tokenizer(
-        ' </s> '.join([f'<extra_id_{i}> ' + examples[col] for i, col in
+        ' '.join([f'<extra_id_{i}> ' + examples[col] for i, col in
                               enumerate(input_cols)]), truncation=True
         )
         plot = examples['clean_Plot']
