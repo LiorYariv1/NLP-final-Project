@@ -58,7 +58,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="web.server" />
   </component>
-  <component name="RunManager" selected="Python.app">
+  <component name="RunManager" selected="Python.main">
     <configuration name="T5" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="NLP-final-Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -95,25 +95,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="app" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="NLP-final-Project" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\atarc\OneDrive - Technion\Documents 1\GitHub\NLP-final-Project\app.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -168,7 +149,6 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.app" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.T5" />
         <item itemvalue="Python.omst" />
@@ -186,7 +166,7 @@
       <workItem from="1644143430499" duration="4186000" />
       <workItem from="1644847863141" duration="96724000" />
       <workItem from="1645625384912" duration="5901000" />
-      <workItem from="1645947474647" duration="23805000" />
+      <workItem from="1645947474647" duration="17221000" />
     </task>
     <servers />
   </component>
@@ -266,11 +246,11 @@
     </state>
     <state width="1877" height="499" key="GridCell.Tab.1.right/0.0.1280.680/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1645980308507" />
     <state width="1237" height="237" key="GridCell.Tab.1.right/0.0.1280.680@0.0.1280.680" timestamp="1645565342477" />
-    <state x="15" y="0" width="914" height="680" key="SettingsEditor" timestamp="1646126012541">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state x="-1897" y="0" width="914" height="680" key="SettingsEditor" timestamp="1645958966022">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
     <state x="-1897" y="0" key="SettingsEditor/0.0.1280.680/-1920.0.1920.1040@-1920.0.1920.1040" timestamp="1645958966022" />
-    <state x="15" y="0" width="1223" height="680" key="SettingsEditor/0.0.1280.680/-1920.0.1920.1040@0.0.1280.680" timestamp="1646126012541" />
+    <state x="15" y="0" width="1223" height="680" key="SettingsEditor/0.0.1280.680/-1920.0.1920.1040@0.0.1280.680" timestamp="1644850642908" />
     <state x="15" y="0" width="914" height="680" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1645947517964" />
     <state width="971" height="531" key="XDebugger.FullValuePopup" timestamp="1645978716649">
       <screen x="-1920" y="0" width="1920" height="1040" />

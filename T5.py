@@ -138,7 +138,7 @@ class PlotGenerationModel(nn.Module):
 
 class repetitions():
     ##TODO: adjust to T5 output
-    def __init__ (self, tokenizer=None):
+    def __init__ (self, tokenizer):
         self.sent_delimiter = '</s>'
         self.tokenizer = tokenizer
 

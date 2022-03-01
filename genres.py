@@ -252,9 +252,7 @@ print("nisayon omst <3<3")
 #%%
 from T5 import T5_trainer, PlotGenerationModel
 #%%
-txt = '<extra_id_0> Avatar <extra_id_1> science fiction, thriller <extra_id_2> cybernet, sims, sim, leaders'
-#%%
-txt = '<extra_id_0> Blue balls <extra_id_1> comedy <extra_id_2> bed, kitchen, desk, do, door'
+txt = '<extra_id_0> Avatar </s> <extra_id_1> science fiction, thriller </s> <extra_id_2> cybernet, sims, sim, leaders'
 #%%
 p3_model = PlotGenerationModel('/home/student/project/model1902__kw_Rake_p3', 't5-base')
 #%%
@@ -262,10 +260,8 @@ txt = p3_model.tokenizer(txt, return_tensors="pt")
 #%%
 res=p3_model(**txt)
 #%%
-p3_model.tokenizer.decode(res[0])
+p3_model.tokenizer.decode(res[0][0])
 #%%
-
-
 #%%
 import pandas as pd
 df = pd.read_csv('/home/student/project/data/filtered_dataset.csv')
@@ -273,46 +269,19 @@ df.columns
 #%%
 from transformers import T5Tokenizer
 model_name = 't5-base'
-#%%
 tokenizer = T5Tokenizer.from_pretrained(model_name)
-
 #%%
-beam_outputs = p3_model.model.generate(
-    **txt,
-    max_length=300,
-    num_beams=10,
-    no_repeat_ngram_size=3,
-    num_return_sequences=10
+from tqdm.notebook import tqdm
+tqdm.pandas()
+#%%
+df['tok_length'] = df['clean_Plot'].progress_apply(lambda x: len(tokenizer(x)['input_ids']))
+#%%
+df[df['tok_length']<=512]
+#%%
+beam_outputs = model.generate(
+    input_ids,
+    max_length=50,
+    num_beams=5,
+    no_repeat_ngram_size=2,
+    num_return_sequences=5,
 )
-#%%
-for i in range(len(beam_outputs)):
-    res = p3_model.tokenizer.decode(beam_outputs[i], skip_special_tokens=True)
-    print(f' result {i}')
-    for sen in res.split('.'):
-        print(sen,'.')
-#%%
-from T5 import PlotGenerationModel,repetitions
-#%%
-p3_model = PlotGenerationModel('/home/student/project/model1902__kw_Rake_p3', 't5-base')
-rep_obj =repetitions()
-#%%
-## Check results
-txts = ['<extra_id_0> Blue balls <extra_id_1> drama <extra_id_2> bed, kitchen, desk, do, door']
-for txt in txts:
-    txt = p3_model.tokenizer(txt, return_tensors="pt")
-    beam_outputs = p3_model.model.generate(
-        **txt,
-        max_length=300,
-        num_beams=10,
-        no_repeat_ngram_size=3,
-        num_return_sequences=10
-    )
-    for output in beam_outputs:
-        plot = p3_model.tokenizer.decode(output, skip_special_tokens=True)
-        print('plot: ')
-        plot_print = '. \n'.join(plot.split('.'))
-        print(plot_print)
-        rep_res = {}
-        for n in [1, 2, 3]:
-            rep_res[n] = rep_obj.intra_repetitions(n, [plot])['mean']
-        print(rep_res)
