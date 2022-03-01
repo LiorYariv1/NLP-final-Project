@@ -307,6 +307,7 @@ for txt in txts:
         no_repeat_ngram_size=3,
         num_return_sequences=10
     )
+
     for output in beam_outputs:
         plot = p3_model.tokenizer.decode(output, skip_special_tokens=True)
         print('plot: ')
@@ -316,3 +317,5 @@ for txt in txts:
         for n in [1, 2, 3]:
             rep_res[n] = rep_obj.intra_repetitions(n, [plot])['mean']
         print(rep_res)
+
+
