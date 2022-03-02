@@ -7,6 +7,8 @@ import pywebio
 from functools import partial
 from T5 import PlotGenerationModel
 import csv
+from datetime import datetime
+
 from PIL import Image
 
 
@@ -18,7 +20,7 @@ class Pyweb():
         self.scope_number=0
         self.scope = 'scope_'
         self.max_position = 2
-        self.inputs = ['title','key_words']
+        self.inputs = ['title']+ [f'kw_{i}' for i in range(10)]
         self.clear_all = {'label': 'clear all output', 'value':'clear all output',"type": 'reset', 'color': 'red'}
         self.ranked_scopes ={}
 
@@ -35,7 +37,7 @@ class Pyweb():
 
     def clear_widget(self):
         for input in self.inputs:
-            pywebio.pin.pin_update(input, value=' ')
+            pywebio.pin.pin_update(input, value='')
         pywebio.pin.pin_update('genre', value=[])
 
     def ui(self):
@@ -60,14 +62,14 @@ class Pyweb():
                      None, put_button('clear input', onclick = self.clear_widget, small=True, color='secondary')], size='15% 10% 65% 10%')
             put_row([
             put_markdown('<p style="background-color: #f0e6ff;"> <b> Please Rate The Results,'
-                         ' It Would Help Us Improve (And Get a Good Grade) </b> </p>'),
+                         ' It Would Help Us Improve (And Get a Good Grade 😊) </b> </p>'),
                 None], size= "70% 30%")
             # pywebio.output.put_buttons([self.generate,self.clear_all], onclick=[self.submission,''])
             put_markdown('<br>')
-        pywebio.output.put_scope('clear', position = 100)
+        pywebio.output.put_scope('clear', position =1000)
         with pywebio.output.use_scope('clear'):
             put_markdown('<b> Tip </b>: try to change only one input and see how the result changes')
-            put_button('clear all outputs', onclick=partial(self.clear_scopes,self.out_scopes), color='secondary')
+            # put_button('clear all outputs', onclick=partial(self.clear_scopes,self.out_scopes), color='secondary')
 
 
     def test_plots(self):
@@ -109,19 +111,19 @@ class Pyweb():
                          pin.put_radio(f'logic_rating_{cur_scope}', label='Rate the plot logic', options=[1, 2, 3, 4, 5],
                                        inline=True)]),
                      put_row([pin.put_input(f'comment_{cur_scope}', placeholder='Please let us know if you have more thoughts (optional)'), None,
-                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope),
+                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope, res),
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
 
 
     def generate(self):
-        if not pin_obj['title']:
+        if pin_obj['title'] in ['', ' '] :
             pywebio.output.popup(title ='Forgot Something?', content = 'Please enter a title')
             return
         if len(pin_obj['genre'])==0:
             pywebio.output.popup(title ='Forgot Something?', content = 'Please choose at least 1 genre')
             return
         if len(pin_obj['genre'])>3:
-            pywebio.output.popup(title = 'too many genres', content = 'Up to 3 genres please :) \n try again')
+            pywebio.output.popup(title = 'too many genres', content = 'Up to 3 genres please :) \ntry again')
             return
         cur_scope = f'{self.scope_number}'
         pywebio.output.put_scope(cur_scope, position = self.max_position)
@@ -131,8 +133,8 @@ class Pyweb():
         self.scope_number+=1
         with pywebio.output.use_scope(cur_scope):
             title, genre = pin_obj['title'], ', '.join(pin_obj['genre'])
-            genres_txt = 'chosen genre' if len(genre)==1 else 'chosen genres: '
-            kw = [str(pin_obj[f'kw_{i}']) if pin_obj[f'kw_{i}']!='' else '^' for i in range(10)]
+            genres_txt = 'chosen genre' if len(pin_obj['genre'])==1 else 'chosen genres: '
+            kw = [str(pin_obj[f'kw_{i}']) if pin_obj[f'kw_{i}'] not in ['',' '] else '^' for i in range(10)]
             kw = ', '.join(kw).replace(', ^', '').replace('^, ','')
             output_txt = f'<b> Movie Title</b>: {title} &emsp; <b>{genres_txt} </b>: {genre} &emsp;  <b>key words </b>: {kw}'
             if kw=='^':
@@ -155,6 +157,11 @@ class Pyweb():
             res = self.p3_model.tokenizer.decode(beam_outputs[0], skip_special_tokens=True)
             pywebio.output.clear('generating'+cur_scope)
             put_markdown(f'<b> Your Generated Movie Plot </b> <br> {res}').style('background-color: #e6faff')
+            with open(r'results.csv', 'a', newline='') as res_file:
+                dt_string = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+                fieldnames = ['time', 'title', 'genre', 'kw', 'gen_plot']
+                writer = csv.DictWriter(res_file, fieldnames=fieldnames)
+                writer.writerow({'time': dt_string, 'title': title, 'genre':genre, 'kw': kw, 'gen_plot':res})
             # put_text(self.p3_model.tokenizer.decode(beam_outputs[0], skip_special_tokens=True))]
             # ).style('background-color: #e6faff')
             with pywebio.output.use_scope('rate'+cur_scope):
@@ -165,7 +172,7 @@ class Pyweb():
                          pin.put_radio(f'logic_rating_{cur_scope}', label='Rate the plot logic', options=[1, 2, 3, 4, 5],
                                        inline=True)]),
                      put_row([pin.put_input(f'comment_{cur_scope}', placeholder='Please let us know if you have more thoughts (optional)'), None,
-                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope),
+                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope,res),
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
                     # put_column([None,
                     #             put_button('Rate', onclick=partial(self.submit, title,genre,kw, cur_scope),color='info')],
@@ -174,8 +181,9 @@ class Pyweb():
                         # put_button('clear result', onclick=partial(self.clear_scopes, [cur_scope]), small=True,
                         #             color='light')])
 
-    def submit(self, title, genre, kw, cur_scope):
-        ranking = {'title': title, 'genre':genre, 'kw': kw,
+    def submit(self, title, genre, kw, cur_scope, res):
+        dt_string = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        ranking = {'time': dt_string, 'title': title, 'genre':genre, 'kw': kw, 'gen_plot':res,
                    'overall': pin_obj[f'overall_rating_{cur_scope}'],
                    'coherent': pin_obj[f'coherent_rating_{cur_scope}'],
                    'logic': pin_obj[f'logic_rating_{cur_scope}'],
@@ -191,7 +199,7 @@ class Pyweb():
                     color='light')],scope=cur_scope, size="88% 12%")
 
         with open(r'ranking.csv', 'a', newline='') as csvfile:
-            fieldnames = ['title', 'genre','kw','overall','coherent','logic','comment']
+            fieldnames = ['time','title', 'genre','kw','gen_plot','overall','coherent','logic','comment']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writerow(ranking)
 
