@@ -42,6 +42,17 @@ def clean_func(text):
     text = re.sub('[^ a-zA-Z0-9.,\'\!\?\-\$\%\&\(\)_]', '', text)
     text = re.sub('  *', ' ', text)
     text = re.sub(' [.,!?] ', '. ', text)
+    text = re.sub(r'http\S+', ' $$', text)
+    text = re.sub(r'\S+\.com', ' $$', text)
+    text = re.sub(r'ref name[\w\s]+\$\$', '', text)
+    text = re.sub(r'\s\$\$', '', text)
+    text = re.sub('Plot Synopsis by [\S+\s]+ page', '', text)
+    text = re.sub('Plot Synopsis by [\S+\s]+ website', '', text)
+    text = re.sub('\[\d*\]', '', text)
+    text = re.sub('\{[\w ]*\}', '', text)
+    text = re.sub('[^ a-zA-Z0-9.,\'\!\?\-\$\%\&\(\)_]', '', text)
+    text = re.sub('  *', ' ', text)
+    text = re.sub(' [.,!?] ', '. ', text)
     if text[0] == " ":
         text = text[1:]
     return text

@@ -24,12 +24,15 @@ if __name__ =='__main__' :
 
     # combine_datasets(args.data_paths)
 
-    # clean_data(args.data_paths)
+    print("start clean")
+    clean_data(args.data_paths)
+    print("start done")
+
 
     # proccess_genres(args.data_paths)
 
-    # decide_train_test_sets(args,save_path='filtered_dataset_3_30',filter_len=True)
-    #
+    decide_train_test_sets(args,save_path='filtered_dataset_3_30',filter_len=True)
+
     # print("Start keywords . . . ")
     # print("type: sentence_process, kw_Rake_1_per_sen")
     # kw_extraction(Rake_extractor,args,'kw_Rake_1_per_sen', 1, process_type='sentence_process') ##one-time-run
