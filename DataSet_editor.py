@@ -59,6 +59,7 @@ def clean_func(text):
 
 def clean_data(paths):
     all_movies = pd.read_csv(paths.full_dataset)
+    all_movies['clean_Plot_old'] = all_movies['clean_Plot']
     all_movies['clean_Plot'] = all_movies['Plot'].apply(clean_func)
     all_movies.to_csv(paths.full_dataset, index=False)
 
@@ -119,7 +120,9 @@ def proccess_genres(paths):
     all_movies['new_genres'] = all_movies['genres'].apply(proccess_genres_func)
     # print(all_movies['new_genres'].values)
     all_movies.to_csv(paths.full_dataset, index=False)
-
+    print("all_movies shape: ", all_movies.shape)
+    all_movies = all_movies[~all_movies.new_genres.isna()]
+    print("all_movies shape after dropna(genres): ", all_movies.shape)
     all_movies['num_genres'] = all_movies['new_genres'].apply(lambda x: len(x.split(',')))
     all_movies = all_movies[all_movies['num_genres'] <= 3]
     all_movies.to_csv(paths.filtered_dataset, index=False)
