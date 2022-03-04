@@ -137,7 +137,7 @@ class PlotGenerationModel(nn.Module):
 
     def generate_plot(self, txt):
         self.model.eval()
-        with torch.no_grad:
+        with torch.no_grad():
             txt = self.tokenizer(txt, return_tensors="pt")
             beam_outputs = self.model.generate(
                 **txt,
