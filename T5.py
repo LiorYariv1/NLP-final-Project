@@ -116,11 +116,12 @@ class T5_trainer():
 
 class PlotGenerationModel(nn.Module):
 
-    def __init__(self, model_path, model_name):
+    def __init__(self, model_path, model_name, num_beams=10):
         super(PlotGenerationModel, self).__init__()
         self.model = T5ForConditionalGeneration.from_pretrained(model_path)
         # self.model: AutoModelWithLMHead
         self.tokenizer = T5Tokenizer.from_pretrained(model_name)
+        self.num_beams = num_beams
 
     def forward(self, input_ids, attention_mask, labels=None):
         if self.model.training: ##TODO check
@@ -133,6 +134,20 @@ class PlotGenerationModel(nn.Module):
                                            return_dict_in_generate=True)
             gen_pred['loss'] = torch.zeros(0).to(self.model.device)
             return gen_pred
+
+    def generate_plot(self, txt):
+        self.model.eval()
+        with torch.no_grad:
+            txt = self.tokenizer(txt, return_tensors="pt")
+            beam_outputs = self.model.generate(
+                **txt,
+                max_length=300,
+                num_beams=self.num_beams,
+                no_repeat_ngram_size=3,
+                num_return_sequences=1
+            )
+            res = self.tokenizer.decode(beam_outputs[0], skip_special_tokens=True)
+            return res
 
 
 

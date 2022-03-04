@@ -146,15 +146,16 @@ class Pyweb():
             txt = f'<extra_id_0> {title} <extra_id_1> {genre} <extra_id_2> {kw}'
             with pywebio.output.use_scope('generating'+cur_scope):
                 put_text('Generating...')
-            txt = self.p3_model.tokenizer(txt, return_tensors="pt")
-            beam_outputs = self.p3_model.model.generate(
-                **txt,
-                max_length=300,
-                num_beams=4,
-                no_repeat_ngram_size=3,
-                num_return_sequences=1
-            )
-            res = self.p3_model.tokenizer.decode(beam_outputs[0], skip_special_tokens=True)
+            res = self.p3_model.generate_plot(txt)
+            # txt = self.p3_model.tokenizer(txt, return_tensors="pt")
+            # beam_outputs = self.p3_model.model.generate(
+            #     **txt,
+            #     max_length=300,
+            #     num_beams=4,
+            #     no_repeat_ngram_size=3,
+            #     num_return_sequences=1
+            # )
+            # res = self.p3_model.tokenizer.decode(beam_outputs[0], skip_special_tokens=True)
             pywebio.output.clear('generating'+cur_scope)
             put_markdown(f'<b> Your Generated Movie Plot </b> <br> {res}').style('background-color: #e6faff')
             with open(r'results.csv', 'a', newline='') as res_file:
