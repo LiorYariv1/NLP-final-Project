@@ -251,6 +251,7 @@ else:
 print("nisayon omst <3<3")
 #%%
 from T5 import T5_trainer, PlotGenerationModel
+from transformers import T5Config
 #%%
 txt = '<extra_id_0> Avatar </s> <extra_id_1> science fiction, thriller </s> <extra_id_2> cybernet, sims, sim, leaders'
 #%%
@@ -285,3 +286,9 @@ beam_outputs = model.generate(
     no_repeat_ngram_size=2,
     num_return_sequences=5,
 )
+
+#%%
+config_path = '/home/student/project/model0303__kw_Rake_p3/config.json'
+config = T5Config.from_pretrained(config_path)
+#%%
+p3_model = PlotGenerationModel(model_path='/home/student/project/results__kw_Rake_p3/checkpoint-65700/',config=config, model_name='t5-base')

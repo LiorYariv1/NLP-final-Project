@@ -116,9 +116,13 @@ class T5_trainer():
 
 class PlotGenerationModel(nn.Module):
 
-    def __init__(self, model_path, model_name, num_beams=10):
+    def __init__(self, model_path, model_name,config=None, num_beams=10):
         super(PlotGenerationModel, self).__init__()
-        self.model = T5ForConditionalGeneration.from_pretrained(model_path)
+        if not config:
+            self.model = T5ForConditionalGeneration.from_pretrained(model_path)
+        else:
+            self.model = T5ForConditionalGeneration.from_pretrained(model_path, config=config)
+
         # self.model: AutoModelWithLMHead
         self.tokenizer = T5Tokenizer.from_pretrained(model_name)
         self.num_beams = num_beams

@@ -14,7 +14,7 @@ from PIL import Image
 
 class Pyweb():
     def __init__(self):
-        self.p3_model = PlotGenerationModel('/home/student/project/model1902__kw_Rake_p3', 't5-base')
+        self.p3_model = PlotGenerationModel('model0303__kw_Rake_p3', 't5-base')
         # self.submit = False
         self.out_scopes = []
         self.scope_number=0
