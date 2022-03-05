@@ -141,8 +141,10 @@ class PlotGenerationModel(nn.Module):
 
     def generate_plot(self, txt):
         self.model.eval()
+        device=torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         with torch.no_grad():
             txt = self.tokenizer(txt, return_tensors="pt")
+            txt= {k:v.to(device) for k,v in txt.items()}
             beam_outputs = self.model.generate(
                 **txt,
                 max_length=300,
