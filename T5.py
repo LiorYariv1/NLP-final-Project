@@ -29,7 +29,7 @@ class T5_trainer():
         self.args = args
         self.model_name = args.T5.model_name
         self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-        self.model = PlotGenerationModel(self.model_name, self.model_name)
+        self.model = PlotGenerationModel(args.T5.pretrained_model, self.model_name)
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         training_args_dict = args.T5.train_args if not args.T5.from_checkpoint else args.T5.train_args_checkpoint
         output_dir = f'results__{kw_type}' if not args.T5.from_checkpoint else f'{kw_type}_from_checkpoint'
@@ -54,10 +54,13 @@ class T5_trainer():
         """
         self.df = pd.read_csv(self.args.data_paths[self.args.T5.run_ds])
         train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']]
-        test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
         val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']]
+        if self.args.T5.from_checkpoint:
+            train_ds=train_ds[0:5]
+            val_ds = val_ds[:5]
+        self.test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
         train_ds = Dataset.from_pandas(train_ds)
-        test_ds = Dataset.from_pandas(test_ds)
+        test_ds = Dataset.from_pandas(self.test_ds)
         val_ds = Dataset.from_pandas(val_ds)
         ds = DatasetDict({'train': train_ds, 'test': test_ds, 'validation': val_ds})
         self.tokenized_datasets = ds.map(self.tokenize_fn, fn_kwargs={'input_cols': input_cols},
@@ -208,10 +211,10 @@ class repetitions():
         # loss_fct = torch.nn.CrossEntropyLoss(ignore_index=-100)
         # loss = loss_fct(lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))
         output = np.maximum(output.predictions,0)
-        plots = self.tokenizer.batch_decode(output)
-        res = self.inter_repetitions(plots)
+        self.plots = self.tokenizer.batch_decode(output, skip_special_tokens=True)
+        res = self.inter_repetitions(self.plots)
         for n in [1,2,3]:
-            tmp = self.intra_repetitions(n, plots)
+            tmp = self.intra_repetitions(n, self.plots)
             res[f'intra_{n}_mean'] = tmp['mean']
             res[f'intra_{n}_min'] = tmp['min']
             res[f'intra_{n}_max'] = tmp['max']

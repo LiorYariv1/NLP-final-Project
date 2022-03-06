@@ -15,28 +15,28 @@ with open(parse_args.config) as f:
     args = Box(yaml.load(f, Loader=yaml.FullLoader))
 #%%
 kw_type = 'kw_Rake_p3'
-checkpoints = {'tmp_checkpoint':'/home/student/project/results__kw_Rake_p3/checkpoint-105120/'}
+checkpoints = { 'epoch_5':'/home/student/project/results__kw_Rake_p3/checkpoint-65700/',
+               'epoch_7':'/home/student/project/results__kw_Rake_p3/checkpoint-91980/',
+               'epoch_8':'/home/student/project/results__kw_Rake_p3/checkpoint-105120/',
+               'epoch_9':'/home/student/project/results__kw_Rake_p3/checkpoint-118260/',
+                'epoch_10':'/home/student/project/results__kw_Rake_p3/checkpoint-131400/'
+}
+t5_obj = T5_trainer(args, kw_type)
+df = t5_obj.test_ds.copy()
 for checkpoint_name, checkpoint in checkpoints.items():
-    wandb.init(project=args.w_and_b.project, name = 'checkpoint_name',
+    wandb.init(project=args.w_and_b.project, name = checkpoint_name,
                job_type=kw_type, entity=args.w_and_b.entity,
                mode=args.w_and_b.mode, reinit=True)
-    t5_obj = T5_trainer(args, kw_type)
     t5_obj.trainer.train(resume_from_checkpoint=checkpoint)
-    print(t5_obj.trainer.predict(t5_obj.tokenized_datasets['test'][:5]))
-    print('done')
-
-
-# model_path='/home/student/project/results__kw_Rake_p3/checkpoint-105120/'
-# t5_obj = T5_trainer(args, 'kw_Rake_p3')
-# train_dataset = t5_obj.tokenized_datasets['train']
-#
-# model_tmp = PlotGenerationModel('t5-base','t5-base')
-# training_args = TrainingArguments(output_dir='fakeres',do_train=False, num_train_epochs=0,per_device_train_batch_size=1)
-# #%%
-# fake_data = train_dataset[0]
-# #%%
-# trainer = Trainer(model=model_tmp, args= training_args, train_dataset=fake_data)
-#                   #%%
-# trainer.train(resume_from_checkpoint=model_path)
-#
-# trainer.model.generate_plot(tmp)
+    t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
+    df[f'plot_{checkpoint_name}'] = t5_obj.repetitions.plots
+    df.to_csv(args.data_paths.test_results)
+    # prediction_text = [t5_obj.tokenizer.decode()]
+wandb.init(project=args.w_and_b.project, name = 'full_model',
+           job_type=kw_type, entity=args.w_and_b.entity,
+           mode=args.w_and_b.mode, reinit=True)
+args.T5.pretrained_model = '/home/student/project/model0303__kw_Rake_p3/'
+t5_obj = T5_trainer(args, kw_type)
+t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
+df[f'full_model'] = t5_obj.repetitions.plots
+df.to_csv(args.data_paths.test_results)

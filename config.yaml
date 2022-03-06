@@ -7,6 +7,7 @@ data_paths:
   filtered_dataset: /home/student/project/data/filtered_dataset.csv
   filtered_dataset_3_30: /home/student/project/data/filtered_dataset_3_30.csv
   filtered_dataset_3_30_new: /home/student/project/data/filtered_dataset_3_30_new.csv
+  test_results: /home/student/project/data/test_results.csv
 
 dataset:
   train_prcnt: 0.94
@@ -14,6 +15,7 @@ dataset:
 
 T5:
   model_name: t5-base
+  pretrained_model: t5-base
   run_ds: filtered_dataset_3_30_new
   input_cols: ['Title', 'new_genres']
 #  input_cols: ['Title', 'new_genres', 'kw_kb_1']
