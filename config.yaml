@@ -20,6 +20,7 @@ T5:
   model_save_path: /home/student/project/model0303
   min_len: 3
   max_len: 30
+  from_checkpoint: True
 
   train_args:
 #    output_dir: results
@@ -36,6 +37,18 @@ T5:
     do_train: True
     do_eval: True
     num_train_epochs: 10
+    report_to: wandb
+
+  train_args_checkpoint:
+#    output_dir: results
+    overwrite_output_dir: True
+    per_device_train_batch_size: 1
+    per_device_eval_batch_size: 1
+    evaluation_strategy: steps
+    eval_steps: 1000
+    do_train: False
+    do_eval: True
+    num_train_epochs: 0
     report_to: wandb
 
 

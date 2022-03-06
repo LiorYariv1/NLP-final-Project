@@ -31,14 +31,17 @@ class T5_trainer():
         self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
         self.model = PlotGenerationModel(self.model_name, self.model_name)
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-        self.training_args = TrainingArguments(output_dir=f'results__{kw_type}', **args.T5.train_args)
+        training_args_dict = args.T5.train_args if not args.T5.from_checkpoint else args.T5.train_args_checkpoint
+        output_dir = f'results__{kw_type}' if not args.T5.from_checkpoint else f'{kw_type}_from_checkpoint'
+        self.training_args = TrainingArguments(output_dir=output_dir, **training_args_dict)
         self.input_cols = self.args.T5.input_cols+[kw_type]
         self.organize_dataset(self.input_cols)
         self.repetitions = repetitions(self.tokenizer)
+        eval_data =  self.tokenized_datasets['validation'] if not args.T5.from_checkpoint else self.tokenized_datasets['test']
         self.trainer = Trainer(
         model=self.model, args=self.training_args,
         train_dataset = self.tokenized_datasets['train'],
-        eval_dataset = self.tokenized_datasets['validation'],
+        eval_dataset = eval_data,
         compute_metrics = self.repetitions.eval,
         # data_collator = self.collate_fn
         )
@@ -135,7 +138,8 @@ class PlotGenerationModel(nn.Module):
             return ans
         else:
             gen_pred = self.model.generate(input_ids=input_ids, attention_mask=attention_mask,
-                                           return_dict_in_generate=True)
+                                           return_dict_in_generate=True, max_length=300,num_beams=self.num_beams,
+                                           no_repeat_ngram_size=3,num_return_sequences=1)
             gen_pred['loss'] = torch.zeros(0).to(self.model.device)
             return gen_pred
 
