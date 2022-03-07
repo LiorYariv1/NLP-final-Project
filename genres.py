@@ -332,3 +332,19 @@ final_model.generate_plot(tmp)
 #%%
 p3_model.generate_plot(tmp)
 #%%
+import pandas as pd
+df = pd.read_csv('/home/student/project/data/test_results.csv')
+
+#%%
+import re
+w='hello12   ,.! hi ל123- @#%^$%*ל'
+english_check = re.compile(r'[a-zA-z1-9]')
+# if english_check.match(w):
+#     print('english')
+# else:
+#     print('problem')
+
+if w.isascii():
+    print('english')
+else:
+    print('problem')

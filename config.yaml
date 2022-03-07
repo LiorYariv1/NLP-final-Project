@@ -15,14 +15,15 @@ dataset:
 
 T5:
   model_name: t5-base
-  pretrained_model: t5-base
+#  pretrained_model: t5-base
+  pretrained_model: '/home/student/project/model0303__kw_Rake_p3/'
   run_ds: filtered_dataset_3_30_new
   input_cols: ['Title', 'new_genres']
 #  input_cols: ['Title', 'new_genres', 'kw_kb_1']
   model_save_path: /home/student/project/model0303
   min_len: 3
   max_len: 30
-  from_checkpoint: True
+  from_checkpoint: True # if True, load a trained model (from checkpoint/from saving final model) for evaluation only
 
   train_args:
 #    output_dir: results

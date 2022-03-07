@@ -46,6 +46,9 @@ class T5_trainer():
         # data_collator = self.collate_fn
         )
 
+    def change_model_beams(self, num):
+        self.model.update_num_beams(num)
+
 
     def organize_dataset(self, input_cols):
         """
@@ -133,6 +136,9 @@ class PlotGenerationModel(nn.Module):
         self.tokenizer = T5Tokenizer.from_pretrained(model_name)
         self.num_beams = num_beams
 
+    def update_num_beams(self, num_beams):
+        self.num_beams = num_beams
+
     def forward(self, input_ids, attention_mask, labels=None):
         if self.model.training: ##TODO check
         # if labels is not None:
@@ -148,10 +154,10 @@ class PlotGenerationModel(nn.Module):
 
     def generate_plot(self, txt):
         self.model.eval()
-        device=torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+        # device=torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         with torch.no_grad():
             txt = self.tokenizer(txt, return_tensors="pt")
-            txt= {k:v.to(device) for k,v in txt.items()}
+            txt= {k:v.to(self.model.device) for k,v in txt.items()}
             beam_outputs = self.model.generate(
                 **txt,
                 max_length=300,
@@ -160,6 +166,7 @@ class PlotGenerationModel(nn.Module):
                 num_return_sequences=1
             )
             res = self.tokenizer.decode(beam_outputs[0], skip_special_tokens=True)
+            res = res.replace('title2008-10-08workNY Times','').replace('Retrieved 2010-10-08workNY Times','')
             return res
 
 
@@ -180,7 +187,7 @@ class repetitions():
                 ngrams[' '.join(sent[i:i + n])] += 1
         return ngrams
 
-    def intra_repetitions(self,n,plots):
+    def intra_repetitions(self,n,plots): ## per plot
         repetition_array = []
         for plot in plots:
             ngrams = self.get_ngrams(plot,n)
@@ -193,7 +200,7 @@ class repetitions():
             repetition_array.append(ngrams_repetition)
         return {'plots_number':len(plots),'mean':mean(repetition_array), 'min':min(repetition_array),'max':max(repetition_array)}
 
-    def inter_repetitions(self,plots):
+    def inter_repetitions(self,plots): ##between plots
         all_plots = ''
         for plot in plots:
             all_plots += plot + ' '
