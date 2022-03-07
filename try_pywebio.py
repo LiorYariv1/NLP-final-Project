@@ -96,8 +96,8 @@ class Pyweb():
         # 'kw_Rake_p3','full_model_9_beams'
         with pywebio.output.use_scope(cur_scope):
             title, genre, kw = sample['Title'].item(), sample['new_genres'].item(), sample['kw_Rake_p3'].item()
-            genres_txt = 'chosen genre' if len(genre)==1 else 'chosen genres: '
-            put_row([put_markdown(f'<b> Movie Title</b>: {title}  <br> <b>{genres_txt} </b> {genre} <br><b>key words </b>: {kw}')]).style('background-color: #ccf5ff')
+            genres_txt = 'chosen genre' if len(genre)==1 else 'chosen genres'
+            put_row([put_markdown(f'<b> Movie Title</b>: {title}  <br> <b>{genres_txt}:</b> {genre} <br><b>key words:</b> {kw}')]).style('background-color: #ccf5ff')
             with pywebio.output.use_scope('generating' + cur_scope):
                 put_text('Generating...')
                 time.sleep(3)
@@ -108,10 +108,13 @@ class Pyweb():
             with pywebio.output.use_scope('rate'+cur_scope):
                 put_column(
                     [put_row([pin.put_radio(f'overall_rating_{cur_scope}', label='Rate the overall quality of the plot', options=[1,2,3,4,5], inline=True),
-                         pin.put_radio(f'coherent_rating_{cur_scope}', label='Rate the plot coherence', options=[1, 2, 3, 4, 5],
-                                       inline=True),
                          pin.put_radio(f'logic_rating_{cur_scope}', label='Rate the plot logic', options=[1, 2, 3, 4, 5],
                                        inline=True)]),
+                     put_row([pin.put_radio(f'intrest_rating_{cur_scope}', label='Rate the plot Interestingness',
+                                            options=[1, 2, 3, 4, 5], inline=True),
+                              pin.put_radio(f'coherent_rating_{cur_scope}', label='Rate the plot coherence',
+                                            options=[1, 2, 3, 4, 5],
+                                            inline=True)]),
                      put_row([pin.put_input(f'comment_{cur_scope}',value=None, placeholder='Please let us know if you have more thoughts (optional)'), None,
                          put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope, res, True),
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
@@ -142,7 +145,7 @@ class Pyweb():
         self.scope_number+=1
         with pywebio.output.use_scope(cur_scope):
             title, genre = pin_obj['title'], ', '.join(pin_obj['genre'])
-            genres_txt = 'chosen genre' if len(pin_obj['genre'])==1 else 'chosen genres: '
+            genres_txt = 'chosen genre' if len(pin_obj['genre'])==1 else 'chosen genres'
             kw = [str(pin_obj[f'kw_{i}']) if pin_obj[f'kw_{i}'] not in ['',' '] else '^' for i in range(self.num_kw)]
             kw = ', '.join(kw).replace(', ^', '').replace('^, ','')
             output_txt = f'<b> Movie Title</b>: {title} &emsp; <b>{genres_txt} </b>: {genre} &emsp;  <b>key words </b>: {kw}'
@@ -153,7 +156,7 @@ class Pyweb():
                 ).style('background-color: #ccf5ff')
             else:
                 put_row([put_markdown(
-                    f'<b> Movie Title</b>: {title}  <br> <b>{genres_txt} </b>: {genre} <br><b>key words</b>: {kw}')]).style(
+                    f'<b> Movie Title:</b> {title}  <br> <b>{genres_txt} :</b> {genre} <br><b>key words:</b> {kw}')]).style(
                     'background-color: #ccf5ff')
             # put_row([put_markdown(f'<b> Movie Title</b>: {title}'), put_markdown(f'<b>{genres_txt} </b>: {",".join(genre)}'),
             #             put_markdown(f'<b>key words </b>: {kw}')]).style('background-color: #ccf5ff')
@@ -171,19 +174,17 @@ class Pyweb():
             with pywebio.output.use_scope('rate'+cur_scope):
                 put_column(
                     [put_row([pin.put_radio(f'overall_rating_{cur_scope}', label='Rate the overall quality of the plot', options=[1,2,3,4,5], inline=True),
-                         pin.put_radio(f'coherent_rating_{cur_scope}', label='Rate the plot coherence', options=[1, 2, 3, 4, 5],
-                                       inline=True),
                          pin.put_radio(f'logic_rating_{cur_scope}', label='Rate the plot logic', options=[1, 2, 3, 4, 5],
                                        inline=True)]),
+                     put_row([pin.put_radio(f'intrest_rating_{cur_scope}', label='Rate the plot Interestingness',
+                                            options=[1, 2, 3, 4, 5], inline=True),
+                              pin.put_radio(f'coherent_rating_{cur_scope}', label='Rate the plot coherence',
+                                            options=[1, 2, 3, 4, 5],
+                                            inline=True)]),
                      put_row([pin.put_input(f'comment_{cur_scope}',value=None, placeholder='Please let us know if you have more thoughts (optional)'), None,
-                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope,res,False),
+                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope, res, True),
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
-                    # put_column([None,
-                    #             put_button('Rate', onclick=partial(self.submit, title,genre,kw, cur_scope),color='info')],
-                    #            size='30% 70%').style('align-item: bottom;')],
-                    #     size = '31% 31% 31% 7%').style('background-color: #f7fdff;')
-                        # put_button('clear result', onclick=partial(self.clear_scopes, [cur_scope]), small=True,
-                        #             color='light')])
+
 
     def submit(self, title, genre, kw, cur_scope, res,random):
         dt_string = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
@@ -191,6 +192,7 @@ class Pyweb():
                    'overall': pin_obj[f'overall_rating_{cur_scope}'],
                    'coherent': pin_obj[f'coherent_rating_{cur_scope}'],
                    'logic': pin_obj[f'logic_rating_{cur_scope}'],
+                   'intrest': pin_obj[f'intrest_rating_{cur_scope}'],
                    'comment': pin_obj[f'comment_{cur_scope}']
                    }
         if ranking['overall'] is None or ranking['coherent'] is None or ranking['logic'] is None:
@@ -203,7 +205,7 @@ class Pyweb():
                     color='light')],scope=cur_scope, size="88% 12%")
 
         with open(r'ranking.csv', 'a', newline='') as csvfile:
-            fieldnames = ['time','name','random','title', 'genre','kw','gen_plot','overall','coherent','logic','comment']
+            fieldnames = ['time','name','random','title', 'genre','kw','gen_plot','overall','coherent','logic','intrest','comment']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writerow(ranking)
 
