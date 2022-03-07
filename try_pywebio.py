@@ -97,7 +97,7 @@ class Pyweb():
         with pywebio.output.use_scope(cur_scope):
             title, genre, kw = sample['Title'].item(), sample['new_genres'].item(), sample['kw_Rake_p3'].item()
             genres_txt = 'chosen genre' if len(genre)==1 else 'chosen genres'
-            put_row([put_markdown(f'<b> Movie Title</b>: {title}  <br> <b>{genres_txt}:</b> {genre} <br><b>key words:</b> {kw}')]).style('background-color: #ccf5ff')
+            put_row([put_markdown(f'<b> Movie Title:</b> {title}  <br> <b>{genres_txt}:</b> {genre} <br><b>key words:</b> {kw}')]).style('background-color: #ccf5ff')
             with pywebio.output.use_scope('generating' + cur_scope):
                 put_text('Generating...')
                 time.sleep(3)
@@ -148,15 +148,15 @@ class Pyweb():
             genres_txt = 'chosen genre' if len(pin_obj['genre'])==1 else 'chosen genres'
             kw = [str(pin_obj[f'kw_{i}']) if pin_obj[f'kw_{i}'] not in ['',' '] else '^' for i in range(self.num_kw)]
             kw = ', '.join(kw).replace(', ^', '').replace('^, ','')
-            output_txt = f'<b> Movie Title</b>: {title} &emsp; <b>{genres_txt} </b>: {genre} &emsp;  <b>key words </b>: {kw}'
+            output_txt = f'<b> Movie Title:</b> {title} &emsp; <b>{genres_txt}:</b> {genre} &emsp;  <b>key words:</b> {kw}'
             if kw=='^':
                 kw = ', '.join(title.split(' '))
                 put_row([put_markdown(
-                    f'<b> Movie Title</b>: {title}  <br> <b>{genres_txt} </b>: {genre}')]
+                    f'<b> Movie Title</b>: {title}  <br> <b>{genres_txt}:</b> {genre}')]
                 ).style('background-color: #ccf5ff')
             else:
                 put_row([put_markdown(
-                    f'<b> Movie Title:</b> {title}  <br> <b>{genres_txt} :</b> {genre} <br><b>key words:</b> {kw}')]).style(
+                    f'<b> Movie Title:</b> {title}  <br> <b>{genres_txt}:</b> {genre} <br><b>key words:</b> {kw}')]).style(
                     'background-color: #ccf5ff')
             # put_row([put_markdown(f'<b> Movie Title</b>: {title}'), put_markdown(f'<b>{genres_txt} </b>: {",".join(genre)}'),
             #             put_markdown(f'<b>key words </b>: {kw}')]).style('background-color: #ccf5ff')
