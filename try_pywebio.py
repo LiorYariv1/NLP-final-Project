@@ -59,7 +59,7 @@ class Pyweb():
         with pywebio.output.use_scope('input'):
         # pywebio.output.put_markdown(r""" <h1>Let's Create A Movie.</h1>"""
             put_row(
-                pin.put_input('name', label="First, choose a Nickname", placeholder='John Doe', value=None),
+                pin.put_input('name', label="First, choose your username", placeholder='John Doe', value=None),
                 size='200px')
             put_row(
                 [put_column(pin.put_input('title', label="Choose your Movie Title")),
@@ -189,7 +189,7 @@ class Pyweb():
                                             options=[1, 2, 3, 4, 5],
                                             inline=True)]),
                      put_row([pin.put_input(f'comment_{cur_scope}',value=None, placeholder='Please let us know if you have more thoughts (optional)'), None,
-                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope, res, True),
+                         put_button('Rate', onclick=partial(self.submit, title, genre, kw, cur_scope, res, False),
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
 
 
