@@ -27,6 +27,7 @@ class Pyweb():
         self.clear_all = {'label': 'clear all output', 'value':'clear all output',"type": 'reset', 'color': 'red'}
         self.ranked_scopes ={}
         self.kw_nums = {1:'st',2:'nd',3:'rd',4:'th',5:'th',6:'th',7:'th',8:'th'}
+        self.last_use = time.time()
 
     # def submission(self):
     #     self.submit=True
@@ -83,9 +84,14 @@ class Pyweb():
         with pywebio.output.use_scope('clear'):
             put_markdown('<b> Tip </b>: try to change only one input and see how the result changes')
             # put_button('clear all outputs', onclick=partial(self.clear_scopes,self.out_scopes), color='secondary')
-
+        # while(True):
+        #         if time.time()-self.last_use > (30*60):
+        #             print("not active for 30 minutes")
+        #             self.last_use = time.time()
 
     def test_plots(self):
+        print(">>> RANDOM generation   * * * * * * * * * * * * * *")
+        self.last_use = time.time()
         cur_scope = f'{self.scope_number}'
         pywebio.output.put_scope(cur_scope, position = self.max_position)
         # self.max_position+=1
@@ -121,6 +127,7 @@ class Pyweb():
 
     def generate(self):
         print('generating')
+        self.last_use = time.time()
         if pin_obj['title'] in ['', ' '] :
             pywebio.output.popup(title ='Forgot Something?', content = 'Please enter a title')
             return
@@ -212,4 +219,5 @@ class Pyweb():
 
 if __name__ == '__main__':
     pyweb = Pyweb()
+    pywebio.config(title="Movie Plots Generator")
     pywebio.start_server(pyweb.ui, port=8080,remote_access=True)
