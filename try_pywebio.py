@@ -53,7 +53,7 @@ class Pyweb():
         # ])
         pywebio.output.put_scope('open', position=2)
         with pywebio.output.use_scope('open'):
-            put_html('<h4> This system will help you to create new movies.<br> Choose the movie title and 1-3 genres.'
+            put_html('<h4> This system will help you create new movies.<br> Choose the movie title and 1-3 genres.'
                   ' Add a few keywords to guide the generator. </h4>')
         pywebio.output.put_scope('input', position=3)
         with pywebio.output.use_scope('input'):
@@ -75,9 +75,14 @@ class Pyweb():
                  put_button('Random', onclick = self.test_plots, color='success'),#, help='we will randomly choose real movie data and generate a new plot'), None,
                      None, put_button('clear input', onclick = self.clear_widget, small=True, color='secondary')], size='15% 10% 65% 10%')
             put_row([
+            # <p style="font-size: small;"> It takes few seconds for the result to appear </p>
+            put_markdown('<p style="font-size: small; color: #595959;"> It takes a few seconds for the results to appear, please wait after clicking GENERATE. </p>'),
+                None], size= "75% 25%")
+            put_row([
+            # <p style="font-size: small;"> It takes few seconds for the result to appear </p>
             put_markdown('<p style="background-color: #f0e6ff;"> <b> Please Rate The Results,'
                          ' It Would Help Us Improve (And Get a Good Grade 😊) </b> </p>'),
-                None], size= "70% 30%")
+            None], size="70% 30%")
             # pywebio.output.put_buttons([self.generate,self.clear_all], onclick=[self.submission,''])
             put_markdown('<br>')
         pywebio.output.put_scope('clear', position =1000)
@@ -126,6 +131,7 @@ class Pyweb():
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
 
     def generate(self):
+        cur_scope = f'{self.scope_number}'
         print('generating')
         self.last_use = time.time()
         if pin_obj['title'] in ['', ' '] :
@@ -144,7 +150,6 @@ class Pyweb():
             if not pin_obj[f'kw_{i}'].isascii():
                 pywebio.output.popup(title='We only understand english', content=f'your {i+1}{self.kw_nums[i+1]} keyword has non-english charecters')
                 return
-        cur_scope = f'{self.scope_number}'
         pywebio.output.put_scope(cur_scope, position = self.max_position)
         # self.max_position+=1
         self.out_scopes.append(cur_scope)
@@ -220,4 +225,4 @@ class Pyweb():
 if __name__ == '__main__':
     pyweb = Pyweb()
     pywebio.config(title="Movie Plots Generator")
-    pywebio.start_server(pyweb.ui, port=8080,remote_access=True)
+    pywebio.start_server(pyweb.ui, port=8888,remote_access=True)
