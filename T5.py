@@ -23,9 +23,10 @@ class T5_trainer():
     # TODO: add functions: repetition metrics,
     def __init__(self, args, kw_type='kw_Rake_1'):
         """
-        this class is used for the T5 training process, including tokenization, training and evaluation
-        :param args: input arguments
         """
+
+        print('pretrained model: ', args.T5.pretrained_model)
+        print('from checkpoint: ', args.T5.from_checkpoint)
         self.args = args
         self.model_name = args.T5.model_name
         self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
@@ -169,22 +170,25 @@ class PlotGenerationModel(nn.Module):
             res = res.replace('title2008-10-08workNY Times','').replace('Retrieved 2010-10-08workNY Times','')
             return res
 
-
-
 class repetitions():
-    ##TODO: adjust to T5 output
+    """
+    This class evaluates model results using inter and intre repetitions measures, based on the code is adjusted from the plan and write paper code
+    that cited in our paper.
+    """
     def __init__ (self, tokenizer):
-        self.sent_delimiter = '</s>'
         self.tokenizer = tokenizer
+        self.order='sorted'
 
-
-    def get_ngrams(self,text, n=3, sent_delimiter="</s>"):
+    def get_ngrams(self,text, n=3, sent_delimiter="."):
         """takes file with text and an optional sentence delimiter, returns counter of ngrams"""
         ngrams = Counter()
         sentences = [sent.split() for sent in text.strip().split(sent_delimiter)]  # nested list words in sents
         for sent in sentences:
             for i in range(len(sent) - n + 1):
-                ngrams[' '.join(sent[i:i + n])] += 1
+                cur_ngram = sent[i:i + n]
+                if self.order=='sorted':
+                    cur_ngram = sorted(cur_ngram)
+                ngrams[' '.join(cur_ngram)] += 1
         return ngrams
 
     def intra_repetitions(self,n,plots): ## per plot
@@ -200,10 +204,11 @@ class repetitions():
             repetition_array.append(ngrams_repetition)
         return {'plots_number':len(plots),'mean':mean(repetition_array), 'min':min(repetition_array),'max':max(repetition_array)}
 
+
     def inter_repetitions(self,plots): ##between plots
         all_plots = ''
         for plot in plots:
-            all_plots += plot + ' '
+            all_plots += plot + '.'
         unigrams = self.get_ngrams(all_plots, n=1)
         bigrams = self.get_ngrams(all_plots, n=2)
         trigrams = self.get_ngrams(all_plots, n=3)
@@ -215,15 +220,22 @@ class repetitions():
         return results
 
     def eval(self, output):
-        # loss_fct = torch.nn.CrossEntropyLoss(ignore_index=-100)
-        # loss = loss_fct(lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))
         output = np.maximum(output.predictions,0)
         self.plots = self.tokenizer.batch_decode(output, skip_special_tokens=True)
-        res = self.inter_repetitions(self.plots)
-        for n in [1,2,3]:
-            tmp = self.intra_repetitions(n, self.plots)
-            res[f'intra_{n}_mean'] = tmp['mean']
-            res[f'intra_{n}_min'] = tmp['min']
-            res[f'intra_{n}_max'] = tmp['max']
-        return res
-
+        lower_plots = [plot.lower() for plot in self.plots]
+        results = {}
+        for order in ['sorted','original']:
+            self.order=order
+            print(self.order)
+            res = self.inter_repetitions(lower_plots)
+            for n in [1,2,3,4]:
+                if n==1 and order=='original':
+                    continue
+                tmp = self.intra_repetitions(n, lower_plots)
+                res[f'intra_{n}_mean'] = tmp['mean']
+                res[f'intra_{n}_min'] = tmp['min']
+                res[f'intra_{n}_max'] = tmp['max']
+            for k,v in res.items():
+                results[f'{k}_{self.order}'] = v
+        print(results)
+        return results

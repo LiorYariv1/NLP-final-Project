@@ -29,18 +29,18 @@ if __name__ =='__main__' :
     print("start done")
 
 
-    # proccess_genres(args.data_paths)
+    proccess_genres(args.data_paths)
 
-    decide_train_test_sets(args,save_path='filtered_dataset_3_30',filter_len=True)
+    decide_train_test_sets(args,save_path='filtered_dataset_3_30_new',filter_len=True)
 
     # print("Start keywords . . . ")
     # print("type: sentence_process, kw_Rake_1_per_sen")
     # kw_extraction(Rake_extractor,args,'kw_Rake_1_per_sen', 1, process_type='sentence_process') ##one-time-run
     # print("1 done")
-    # print("type: parts_process, kw_Rake_p3")
-    # kw_extraction(Rake_extractor,args,'kw_Rake_p3', 3, process_type='parts_process') ##one-time-run
+    print("type: parts_process, kw_Rake_p3")
+    kw_extraction(Rake_extractor,args,'kw_Rake_p3', 3, process_type='parts_process') ##one-time-run
     # print("2 done")
-    # print("Rake DONE")
+    print("Rake DONE")
 
     ##KEYBERT
     # kw_extraction(keybert_extractor,args.data_paths,'kw_kb_1', k_kw_for_sen) ##one-time-run

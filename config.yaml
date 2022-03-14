@@ -17,13 +17,14 @@ T5:
   model_name: t5-base
 #  pretrained_model: t5-base
   pretrained_model: '/home/student/project/model0303__kw_Rake_p3/'
+#  pretrained_model: '/home/student/project/model1902__kw_Rake_p3/'
   run_ds: filtered_dataset_3_30_new
   input_cols: ['Title', 'new_genres']
 #  input_cols: ['Title', 'new_genres', 'kw_kb_1']
-  model_save_path: /home/student/project/model0303
+  model_save_path: /home/student/project/save_res
   min_len: 3
   max_len: 30
-  from_checkpoint: True # if True, load a trained model (from checkpoint/from saving final model) for evaluation only
+  from_checkpoint: False # if True, load a trained model (from checkpoint/from saving final model) for evaluation only
 
   train_args:
 #    output_dir: results
@@ -33,8 +34,6 @@ T5:
     save_strategy: epoch
     warmup_steps: 1000
     learning_rate: 1.0e-4
-#    metric_for_best_model: eval_loss  #FIXME: change to the metric of the article
-#    greater_is_better: True  #FIXME - according to metric
     evaluation_strategy: steps
     eval_steps: 1000
     do_train: True
@@ -70,7 +69,7 @@ T5:
 #    report_to: 'none'
 
 w_and_b:
-  project: NLP_project_PlotGenerator
+  project: NLP_project_PlotGenerator_submission
   entity: nlp_final_project
   group: run2
   job_type: rake

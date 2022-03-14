@@ -15,27 +15,30 @@ with open(parse_args.config) as f:
     args = Box(yaml.load(f, Loader=yaml.FullLoader))
 # #%%
 kw_type = 'kw_Rake_p3'
-# checkpoints = { 'epoch_5':'/home/student/project/results__kw_Rake_p3/checkpoint-65700/',
-#                'epoch_7':'/home/student/project/results__kw_Rake_p3/checkpoint-91980/',
-#                'epoch_8':'/home/student/project/results__kw_Rake_p3/checkpoint-105120/',
-#                'epoch_9':'/home/student/project/results__kw_Rake_p3/checkpoint-118260/',
-#                 'epoch_10':'/home/student/project/results__kw_Rake_p3/checkpoint-131400/'
-# }
-# t5_obj = T5_trainer(args, kw_type)
-# df = t5_obj.test_ds.copy()
-# for checkpoint_name, checkpoint in checkpoints.items():
-#     wandb.init(project=args.w_and_b.project, name = checkpoint_name,
-#                job_type=kw_type, entity=args.w_and_b.entity,
-#                mode=args.w_and_b.mode, reinit=True)
-#     t5_obj.trainer.train(resume_from_checkpoint=checkpoint)
-#     t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
-#     df[f'plot_{checkpoint_name}'] = t5_obj.repetitions.plots
-#     df.to_csv(args.data_paths.test_results)
-#     # prediction_text = [t5_obj.tokenizer.decode()]
-
 #%%
+checkpoints = { 'epoch_5':'/home/student/project/results__kw_Rake_p3/checkpoint-65700/',
+               'epoch_7':'/home/student/project/results__kw_Rake_p3/checkpoint-91980/',
+               'epoch_8':'/home/student/project/results__kw_Rake_p3/checkpoint-105120/',
+               'epoch_9':'/home/student/project/results__kw_Rake_p3/checkpoint-118260/',
+                'epoch_10':'/home/student/project/results__kw_Rake_p3/checkpoint-131400/'
+}
+args.T5.from_checkpoint = True
 t5_obj = T5_trainer(args, kw_type)
-df = t5_obj.test_ds.copy()
+# df = t5_obj.test_ds.copy()
+for checkpoint_name, checkpoint in checkpoints.items():
+    wandb.init(project=args.w_and_b.project, name = checkpoint_name,
+               job_type=kw_type, entity=args.w_and_b.entity,
+               mode=args.w_and_b.mode, reinit=True)
+    t5_obj.trainer.train(resume_from_checkpoint=checkpoint)
+    t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
+    # df[f'plot_{checkpoint_name}'] = t5_obj.repetitions.plots
+    # df.to_csv(args.data_paths.test_results)
+    # prediction_text = [t5_obj.tokenizer.decode()]
+
+# #%%
+args.T5.from_checkpoint = False
+t5_obj = T5_trainer(args, kw_type)
+# df = t5_obj.test_ds.copy()
 for num_beams in [3,5,7,9,10,12]:
     wandb.init(project=args.w_and_b.project, name = f'full_model_{num_beams}_beams',
                job_type=kw_type, entity=args.w_and_b.entity,
@@ -43,5 +46,15 @@ for num_beams in [3,5,7,9,10,12]:
     t5_obj.change_model_beams(num_beams)
     print(t5_obj.trainer.model.num_beams)
     t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
-    df[f'full_model_{num_beams}_beams'] = t5_obj.repetitions.plots
-    df.to_csv('/home/student/project/data/full_model_beams.csv')
+#     df[f'full_model_{num_beams}_beams'] = t5_obj.repetitions.plots
+#     df.to_csv('/home/student/project/data/full_model_beams.csv')
+#
+args.pretrained_model = f'/home/student/project/model1902__{kw_type}/'
+t5_obj = T5_trainer(args, kw_type)
+for num_beams in [3,5,7,9,10,12]:
+    wandb.init(project=args.w_and_b.project, name = f'first_model_{kw_type}_beams_{num_beams}',
+               job_type=kw_type, entity=args.w_and_b.entity,
+               mode=args.w_and_b.mode, reinit=True)
+    t5_obj.change_model_beams(num_beams)
+    print(t5_obj.trainer.model.num_beams)
+    t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
