@@ -10,15 +10,14 @@ data_paths:
   test_results: /home/student/project/data/test_results.csv
 
 dataset:
-  train_prcnt: 0.94 #percent of data for training
-  test_prcnt: 0.02 #percent of data for test set
-  # the remaining precentage will be validation set
+  train_prcnt: 0.94
+  test_prcnt: 0.02
 
 T5:
   model_name: t5-base #used to load pre-trained tokenizer
   pretrained_model: t5-base #use this when training and model from scratch (i.e, for reproduction)
 #  pretrained_model: '/home/student/project/model0303__kw_Rake_p3/' # (If you wish to load our final model)
-  run_ds: filtered_dataset_3_30_new #the dataset input for the model, after all preprocess and train_test split
+  run_ds: filtered_dataset_3_30_new
   input_cols: ['Title', 'new_genres'] #this is constant in our case.
 #  model_save_path: /home/student/project/model0303__kw_Rake_p3 #where to save the model
   min_len: 3 #
@@ -53,6 +52,21 @@ T5:
     do_eval: True
     num_train_epochs: 0
     report_to: wandb
+
+
+## Config for debugging
+#  train_args:
+##    output_dir: results
+#    overwrite_output_dir: True
+#    per_device_train_batch_size: 1
+#    per_device_eval_batch_size: 1
+#    save_strategy: 'no'
+##    metric_for_best_model: eval_loss  #FIXME: change to the metric of the article
+##    greater_is_better: True  #FIXME - according to metric
+#    evaluation_strategy: 'epoch'
+#    do_train: True
+#    num_train_epochs: 1
+#    report_to: 'none'
 
 w_and_b:
   project: NLP_project_PlotGenerator_final_fixed

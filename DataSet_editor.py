@@ -14,7 +14,6 @@ def combine_datasets (paths):
      and plot_summaries  (relevant columns: wikiID, plot)
     2. the wiki movies dataset
     :param paths: paths to the datasets
-    :return: None
     """
     col_names = ['WikiID', 'Freebase movie ID', 'Title', 'Movie release date', 'Movie box office revenue',
                  'Movie runtime',
@@ -35,6 +34,10 @@ def combine_datasets (paths):
     all_movies.to_csv(paths.full_dataset, index=False)
 
 def clean_func(text):
+    """
+    :param text: string to clean
+    :return: a cleaned string - after removing "noise"
+    """
     if text[:11] == "As describe":
         text = ','.join(text.split(',')[1:])
     text = re.sub('\[\d*\]', '', text)
@@ -58,12 +61,19 @@ def clean_func(text):
     return text
 
 def clean_data(paths):
+    """
+    saves the all movies data set with an additional "clean_plot" column for the model training.
+    :param paths:
+    """
     all_movies = pd.read_csv(paths.full_dataset)
-    all_movies['clean_Plot_old'] = all_movies['clean_Plot']
     all_movies['clean_Plot'] = all_movies['Plot'].apply(clean_func)
     all_movies.to_csv(paths.full_dataset, index=False)
 
 def proccess_genres_func(text):
+    """
+    :param text: string includes all genres associated with a single movie
+    :return: a list of up to 3 genres, sorted alphabetically, as explained in the paper.
+    """
     if ((not (text)) or (str(text).lower()=="nan")):
         return None
     text = text.lower()
@@ -116,6 +126,11 @@ def proccess_genres_func(text):
 
 
 def proccess_genres(paths):
+    """
+    reads the full dataset, process genres with the former function, filter the dataset saving only movies that have
+    1-3 genres.
+    :param paths: datasets paths
+    """
     all_movies = pd.read_csv(paths.full_dataset)
     all_movies['new_genres'] = all_movies['genres'].apply(proccess_genres_func)
     # print(all_movies['new_genres'].values)
@@ -129,6 +144,14 @@ def proccess_genres(paths):
 
 
 def decide_train_test_sets(args, save_path, filter_len=True):
+    """
+    split data into test, train and validation sets. the precentage for each split out of the full dataset can be
+    adjusted at the config file, saves the filtered data with a new column that indicates the split of each movie
+    :param args: config args
+    :param save_path: path to save the final datasets
+    :param filter_len: wether to filter the plots by len (if so, we use the args.T5.min_len and max_len to determine
+    minimum and maximum sentences length.
+    """
     df = pd.read_csv(args.data_paths.filtered_dataset)
     print("before dropna: ", df.shape)
     df = df.dropna()
@@ -147,14 +170,17 @@ def decide_train_test_sets(args, save_path, filter_len=True):
         else 'test' if x <= args.dataset.train_prcnt+args.dataset.test_prcnt else 'val')
     df.to_csv(args.data_paths[save_path], index=False)
 
-def kw_extraction(extractor,args,col_name, f_num=1, process_type='sentence_process'):
+def kw_extraction(extractor,args,col_name, f_num=3, process_type='parts_process'):
     """
-    adds a column named col_name with the extracted kwywords using keybert
-    TODO: decide if to add a type var that will determine what process function to call for in kbextractor
-    :param paths:  data paths from main
-    :param col_name:  col name to add to the datasets
+    adds a column named col_name with the extracted kewywords using the extractor keybert
+    :param extractor: Rake_extractor or keybert_extractor from the KW_extractor file
+    :param args:
+    :param col_name: column name to add
+    :param f_num: a number needed for the process type. if sentence process - k is the number of words to extract for
+    each sentence. if parts_process - p is the number of parts
+    :param process_type: parts_process or sentence, we used parts_processed
     :return:
-    """
+       """
     df = pd.read_csv(args.data_paths[args.T5.run_ds])
     extractor = extractor()
     print(df.shape)

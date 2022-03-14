@@ -1,5 +1,4 @@
-from transformers import T5ForConditionalGeneration, AutoModelWithLMHead , TrainingArguments, Trainer, T5Config
-from T5 import PlotGenerationModel, T5_trainer
+from T5 import T5_trainer
 import argparse
 import yaml
 from box import Box
@@ -8,13 +7,15 @@ import wandb
 
 parser = argparse.ArgumentParser(description='argument parser')
 parser.add_argument("--mode", default='client')
-parser.add_argument('--config', default='config.yaml', type=str,
+parser.add_argument('--config', default='config_old.yaml', type=str,
                     help='Path to YAML config file. Defualt: config.yaml')
 parse_args = parser.parse_args()
 with open(parse_args.config) as f:
     args = Box(yaml.load(f, Loader=yaml.FullLoader))
 # #%%
 kw_type = 'kw_Rake_p3'
+print('initial', args.T5.pretrained_model)
+
 #%%
 checkpoints = { 'epoch_5':'/home/student/project/results__kw_Rake_p3/checkpoint-65700/',
                'epoch_7':'/home/student/project/results__kw_Rake_p3/checkpoint-91980/',
@@ -22,6 +23,8 @@ checkpoints = { 'epoch_5':'/home/student/project/results__kw_Rake_p3/checkpoint-
                'epoch_9':'/home/student/project/results__kw_Rake_p3/checkpoint-118260/',
                 'epoch_10':'/home/student/project/results__kw_Rake_p3/checkpoint-131400/'
 }
+args.T5.pretrained_model = '/home/student/project/model0303__kw_Rake_p3/'
+print(args.T5.pretrained_model)
 args.T5.from_checkpoint = True
 t5_obj = T5_trainer(args, kw_type)
 # df = t5_obj.test_ds.copy()
@@ -29,6 +32,7 @@ for checkpoint_name, checkpoint in checkpoints.items():
     wandb.init(project=args.w_and_b.project, name = checkpoint_name,
                job_type=kw_type, entity=args.w_and_b.entity,
                mode=args.w_and_b.mode, reinit=True)
+    wandb.config.update(args.T5)
     t5_obj.trainer.train(resume_from_checkpoint=checkpoint)
     t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
     # df[f'plot_{checkpoint_name}'] = t5_obj.repetitions.plots
@@ -49,7 +53,7 @@ for num_beams in [3,5,7,9,10,12]:
 #     df[f'full_model_{num_beams}_beams'] = t5_obj.repetitions.plots
 #     df.to_csv('/home/student/project/data/full_model_beams.csv')
 #
-args.pretrained_model = f'/home/student/project/model1902__{kw_type}/'
+args.T5.pretrained_model = f'/home/student/project/model1902__{kw_type}/'
 t5_obj = T5_trainer(args, kw_type)
 for num_beams in [3,5,7,9,10,12]:
     wandb.init(project=args.w_and_b.project, name = f'first_model_{kw_type}_beams_{num_beams}',

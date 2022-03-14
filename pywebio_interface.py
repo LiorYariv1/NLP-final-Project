@@ -14,6 +14,9 @@ from PIL import Image
 
 
 class Pyweb():
+    """
+    all the functions needed for the interface
+    """
     def __init__(self):
         self.p3_model = PlotGenerationModel('model0303__kw_Rake_p3', 't5-base', num_beams=9)
         # self.submit = False
@@ -46,6 +49,10 @@ class Pyweb():
         pywebio.pin.pin_update('genre', value=[])
 
     def ui(self):
+        """
+        creates user UI
+        :return:
+        """
         # put_row([
         pywebio.output.put_html("<h1>Let's Create Movies 🎬</h1>",
                                 scope=None, position=- 1)
@@ -95,6 +102,10 @@ class Pyweb():
         #             self.last_use = time.time()
 
     def test_plots(self):
+        """
+        random generation - sampling from the test set
+        :return:
+        """
         print(">>> RANDOM generation   * * * * * * * * * * * * * *")
         self.last_use = time.time()
         cur_scope = f'{self.scope_number}'
@@ -131,6 +142,10 @@ class Pyweb():
                                                 color='info')], size='90% 2% 7%')]).style('background-color: #f7fdff;')
 
     def generate(self):
+        """
+        generating user input
+        :return:
+        """
         cur_scope = f'{self.scope_number}'
         print('generating')
         self.last_use = time.time()
@@ -199,6 +214,16 @@ class Pyweb():
 
 
     def submit(self, title, genre, kw, cur_scope, res,random):
+        """
+        logs user's input, results, and rating (only when a user submit his rating)
+        :param title:
+        :param genre:
+        :param kw:
+        :param cur_scope:
+        :param res:
+        :param random:
+        :return:
+        """
         dt_string = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
         ranking = {'time': dt_string,'name':pin_obj['name'],'random':random, 'title': title, 'genre':genre, 'kw': kw, 'gen_plot':res,
                    'overall': pin_obj[f'overall_rating_{cur_scope}'],
