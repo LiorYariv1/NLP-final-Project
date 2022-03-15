@@ -8,13 +8,16 @@ pip install wandb <br>
 pip install pywebio (only needed to run the web app)<br> 
 pip install keybert (optional for kw extraction. our final model did not use this and the relevant code is commented)
 <br>
+
 ### Reproduction Instructions: 
-Run main.py to clean the data set, extract keywords and train the model. 
+1. open a "data" directory for the movie datasets (can be found in Git)
+2. Run main.py to clean the data set, extract keywords and train the model. 
+The model will be saved and the training data will be logged into WandB. 
 <br>
 If needed, edit the config.yaml file with the right paths for reading the data and saving the model. <br>
 You can also change the training arguments, but the config is ready to reproduct our results <br>
-To compare the model at different checkpoints, you can run comparisonscript.py and see the results logged to wandb.
-
+3. To obtain all comparison result, run comparisons.py The objective metrics will be logged to WandB, the plots will be saved to csv files
+4. For the graphs and tables showed in the experiments part, run the  Experiments_Results.ipynb notebook
 ### To activate the web interface:
 To run on our machine with our model:
 1. start the azure vm
@@ -24,4 +27,3 @@ To run on our machine with our model:
 
 To run with a different trained model: <br>
 change the model path in pywebio_interface.py and run the script
-

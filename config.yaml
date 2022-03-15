@@ -9,6 +9,7 @@ data_paths:
   filtered_dataset_3_30_new: /home/student/project/data/filtered_dataset_3_30_new.csv
   test_results: /home/student/project/data/test_results.csv
 
+
 dataset:
   train_prcnt: 0.94 #percent of data for training
   test_prcnt: 0.02 #percent of data for test set
@@ -19,8 +20,11 @@ T5:
   pretrained_model: t5-base #use this when training and model from scratch (i.e, for reproduction)
 #  pretrained_model: '/home/student/project/model0303__kw_Rake_p3/' # (If you wish to load our final model)
   run_ds: filtered_dataset_3_30_new #the dataset input for the model, after all preprocess and train_test split
-  input_cols: ['Title', 'new_genres'] #this is constant in our case.
+  input_cols: ['Title', 'new_genres']
+  #this is constant in our case.
 #  model_save_path: /home/student/project/model0303__kw_Rake_p3 #where to save the model
+  model_save_path: /home/student/project/check/model0303__kw_Rake_p3 #where to save the model
+
   min_len: 3 #
   max_len: 30
   from_checkpoint: False # if True, load a trained model
@@ -28,7 +32,7 @@ T5:
                           # we used it for evaluation only, and the code implemented accordingly
 
   train_args:
-#    output_dir: results
+#    output_dir: check/results
     overwrite_output_dir: True
     per_device_train_batch_size: 1
     per_device_eval_batch_size: 1
@@ -39,7 +43,8 @@ T5:
     eval_steps: 1000
     do_train: True
     do_eval: True
-    num_train_epochs: 10
+#    num_train_epochs: 10
+    num_train_epochs: 1
     report_to: wandb
 
   train_args_checkpoint:
@@ -55,7 +60,7 @@ T5:
     report_to: wandb
 
 w_and_b:
-  project: NLP_project_PlotGenerator_finalrun
+  project: NLP_project_check
   entity: nlp_final_project
   group: run2
   job_type: rake
