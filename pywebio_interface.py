@@ -1,4 +1,3 @@
-# A simple script to calculate BMI
 from pywebio.input import input, TEXT,input_group, checkbox
 from pywebio.output import put_text, put_row,put_button, put_markdown, put_column, put_html
 from pywebio import pin
