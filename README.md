@@ -1,7 +1,7 @@
 # NLP-final-Project
 
 
-##requirements:  <br>
+## Requirements:  <br>
 pip install box <br>
 pip install python-rake==1.4.4 <br>
 pip install wandb <br>
