@@ -32,3 +32,5 @@ Note: The website reads the full_model_beams.csv file, if you dont have it, it c
 
 To run with a different trained model: <br>
 change the model path in pywebio_interface.py and run the script
+
+![Web interface](https://github.com/LiorYariv1/NLP-final-Project/blob/main/img/image.jpg?raw=true)
