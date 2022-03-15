@@ -10,7 +10,8 @@ pip install keybert (optional for kw extraction. our final model did not use thi
 <br>
 
 ### Reproduction Instructions: 
-1. open a "data" directory for the movie datasets (can be found in Git)
+1. open a "data" directory for the movie datasets (all datasets can be found in Git
+https://github.com/LiorYariv1/NLP-final-Project)
 2. Run main.py to clean the data set, extract keywords and train the model. 
 The model will be saved and the training data will be logged into WandB. 
 <br>
