@@ -24,6 +24,8 @@ To run on our machine with our model:
 2. conda activate py38_pytorch
 3. run pywebio_interface.py
 (or just send us an email)
+   
+Note: The website reads the full_model_beams.csv file, if you dont have it, it can be reproduced in comparisons.py
 
 To run with a different trained model: <br>
 change the model path in pywebio_interface.py and run the script

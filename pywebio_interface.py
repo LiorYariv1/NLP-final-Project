@@ -50,7 +50,6 @@ class Pyweb():
     def ui(self):
         """
         creates user UI
-        :return:
         """
         # put_row([
         pywebio.output.put_html("<h1>Let's Create Movies 🎬</h1>",
@@ -71,8 +70,8 @@ class Pyweb():
                 [put_column(pin.put_input('title', label="Choose your Movie Title")),
                  None], size='55% 45%')
         # put_row(pin.put_input('title', label='Choose your Movie Title'))
-            put_row(pin.put_checkbox('genre', label='Choose genres', options=['action','comedy','crime','drama','fantasy',\
-                                                                'horror','mystery','romance','science fiction',\
+            put_row(pin.put_checkbox('genre', label='Choose genres', options=['action','comedy','crime','drama','fantasy',
+                                                                'horror','mystery','romance','science fiction',
                                                                 'sport','thriller','war','western'], inline=True))
             put_column([put_row(put_markdown('Insert A Few Keywords (you dont have to use all the boxes)')),
                 put_row([pin.put_input(f'kw_{i}') for i in range(self.num_kw)])], size='30% 70%')
