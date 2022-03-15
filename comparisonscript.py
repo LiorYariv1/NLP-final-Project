@@ -32,7 +32,7 @@ args.T5.pretrained_model = '/home/student/project/model0303__kw_Rake_p3/'
 print(args.T5.pretrained_model)
 args.T5.from_checkpoint = True
 t5_obj = T5_trainer(args, kw_type)
-df = t5_obj.test_ds.copy()
+# df = t5_obj.test_ds.copy()
 for checkpoint_name, checkpoint in checkpoints.items():
     wandb.init(project=args.w_and_b.project, name = checkpoint_name,
                job_type=kw_type, entity=args.w_and_b.entity,
@@ -40,8 +40,8 @@ for checkpoint_name, checkpoint in checkpoints.items():
     wandb.config.update(args.T5)
     t5_obj.trainer.train(resume_from_checkpoint=checkpoint)
     t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
-    df[f'plot_{checkpoint_name}'] = t5_obj.repetitions.plots
-    df.to_csv('checkpoints_res.csv')
+    # df[f'plot_{checkpoint_name}'] = t5_obj.repetitions.plots
+    # df.to_csv('checkpoints_res.csv')
     prediction_text = [t5_obj.tokenizer.decode()]
 
 """
@@ -56,7 +56,7 @@ models =  [('first_model',f'/home/student/project/model1902__{kw_type}/'),('full
 for model_name, model_path in models:
     args.T5.pretrained_model = model_path
     t5_obj = T5_trainer(args, kw_type)
-    df = t5_obj.test_ds.copy()
+    # df = t5_obj.test_ds.copy()
     for num_beams in [3,5,7,9,10,12]:
         wandb.init(project=args.w_and_b.project, name = f'{model_name}_{num_beams}_beams',
                    job_type=kw_type, entity=args.w_and_b.entity,
@@ -64,9 +64,9 @@ for model_name, model_path in models:
         t5_obj.change_model_beams(num_beams)
         print(t5_obj.trainer.model.num_beams)
         t5_obj.trainer.evaluate(t5_obj.tokenized_datasets['test'])
-        if model_name=='full_model'
-            df[f'full_model_{num_beams}_beams'] = t5_obj.repetitions.plots
-            df.to_csv('full_model_beams.csv')
+        # if model_name=='full_model'
+        #     df[f'full_model_{num_beams}_beams'] = t5_obj.repetitions.plots
+        #     df.to_csv('full_model_beams.csv')
 #
 # args.T5.pretrained_model = f'/home/student/project/model1902__{kw_type}/'
 # t5_obj = T5_trainer(args, kw_type)

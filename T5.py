@@ -54,8 +54,8 @@ class T5_trainer():
         :return: saves original dataframe and tokenized datasets for the model
         """
         self.df = pd.read_csv(self.args.data_paths[self.args.T5.run_ds])
-        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']]
-        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']]
+        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']][0:1]
+        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']][0:1]
         self.test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
         train_ds = Dataset.from_pandas(train_ds)
         test_ds = Dataset.from_pandas(self.test_ds)
@@ -233,7 +233,7 @@ class repetitions():
                 continue
             ngrams_repetition = (total_ngrams - unique_ngrams) / total_ngrams
             repetition_array.append(ngrams_repetition)
-        return {'plots_number':len(plots),'mean':mean(repetition_array), 'min':min(repetition_array),'max':max(repetition_array)}
+        return {'plots_number':len(plots),'mean':mean(repetition_array), 'min':min(repetition_array),'max':max(repetition_array)}, repetition_array
 
 
     def inter_repetitions(self,plots):
@@ -282,7 +282,7 @@ class repetitions():
             for n in [1,2,3,4]:
                 if n==1 and order=='original':
                     continue
-                tmp = self.intra_repetitions(n, lower_plots)
+                tmp, _ = self.intra_repetitions(n, lower_plots)
                 res[f'intra_{n}_mean'] = tmp['mean']
                 res[f'intra_{n}_min'] = tmp['min']
                 res[f'intra_{n}_max'] = tmp['max']

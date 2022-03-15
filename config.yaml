@@ -55,7 +55,7 @@ T5:
     report_to: wandb
 
 w_and_b:
-  project: NLP_project_PlotGenerator_final_fixed
+  project: NLP_project_PlotGenerator_finalrun
   entity: nlp_final_project
   group: run2
   job_type: rake
