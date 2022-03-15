@@ -2,13 +2,16 @@ import argparse
 import yaml
 from box import Box
 from DataSet_editor import combine_datasets, kw_extraction, clean_data, proccess_genres, decide_train_test_sets
-from KW_extractor import Rake_extractor, keybert_extractor
+from KW_extractor import Rake_extractor # , keybert_extractor
 from transformers import AutoTokenizer
 from T5 import T5_trainer, PlotGenerationModel
 from datasets import load_metric
 import numpy as np
 import wandb
-
+"""
+This script will reproduce our model result. The script is using DataSet_editor.py and KW_extractor.py for the data pre-process
+and T5.py for training and evaluation
+"""
 
 if __name__ =='__main__' :
     parser = argparse.ArgumentParser(description='argument parser')
