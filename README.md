@@ -19,6 +19,8 @@ You can also change the training arguments, but the config is ready to reproduct
 3. To obtain all comparison result, run comparisons.py The objective metrics will be logged to WandB, the plots will be saved to csv files
 4. For the graphs and tables showed in the experiments part, run the  Experiments_Results.ipynb notebook
 <br>
+   
+
 ## To activate the web interface:
 To run on our machine with our model:
 1. start the azure vm
