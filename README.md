@@ -36,3 +36,6 @@ change the model path in pywebio_interface.py and run the script
 ## Web Interface 
 
 ![Web interface](https://github.com/LiorYariv1/NLP-final-Project/blob/main/img/ui.jpg?raw=true)
+
+![Web interface](https://github.com/LiorYariv1/NLP-final-Project/blob/main/img/output_example.png?raw=true)
+
