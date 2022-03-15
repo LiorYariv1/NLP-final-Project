@@ -1,5 +1,6 @@
 # NLP-final-Project
 
+
 ##requirements:  <br>
 pip install box <br>
 pip install python-rake==1.4.4 <br>
@@ -9,8 +10,7 @@ pip install keybert (optional for kw extraction. our final model did not use thi
 <br>
 
 ## Reproduction Instructions: 
-1. open a "data" directory for the movie datasets (all datasets can be found in Git
-https://github.com/LiorYariv1/NLP-final-Project)
+1. open a "data" directory for the movie datasets (files can be found on  https://technionmail-my.sharepoint.com/:f:/g/personal/atar_cohen_campus_technion_ac_il/EmeDCbfBN4xFqs-2LY4FOn0BSXiCMy0K7oTZsZRhLbP1rA?e=Z1qEEG)
 2. Run main.py to clean the data set, extract keywords and train the model. 
 The model will be saved and the training data will be logged into WandB. 
 <br>
