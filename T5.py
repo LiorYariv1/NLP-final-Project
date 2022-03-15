@@ -11,6 +11,7 @@ from collections import Counter
 from numpy import mean
 from datasets import Dataset, DatasetDict
 import numpy as np
+import re
 
 class T5_trainer():
     def __init__(self, args, kw_type='kw_Rake_3'):
@@ -54,8 +55,8 @@ class T5_trainer():
         :return: saves original dataframe and tokenized datasets for the model
         """
         self.df = pd.read_csv(self.args.data_paths[self.args.T5.run_ds])
-        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']][0:1]
-        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']][0:1]
+        train_ds = self.df[self.df['row_class']=='train'][input_cols+['clean_Plot']]
+        val_ds = self.df[self.df['row_class']=='val'][input_cols+['clean_Plot']]
         self.test_ds = self.df[self.df['row_class']=='test'][input_cols+['clean_Plot']]
         train_ds = Dataset.from_pandas(train_ds)
         test_ds = Dataset.from_pandas(self.test_ds)
@@ -122,7 +123,7 @@ class T5_trainer():
 
 class PlotGenerationModel(nn.Module):
 
-    def __init__(self, model_path, model_name, num_beams=10):
+    def __init__(self, model_path, model_name, num_beams=9):
         """
         This is a wrapper class for the T5 model, this class is based on the notebook presented in tutorial 9
         :param model_path: pretrained model path
@@ -225,7 +226,8 @@ class repetitions():
         """
         repetition_array = []
         for plot in plots:
-            ngrams = self.get_ngrams(plot,n)
+            remove_punc_plot = re.sub('[,!?]', ' ', plot) #For better matching of ngrams
+            ngrams = self.get_ngrams(remove_punc_plot,n)
             unique_ngrams = len(ngrams)
             total_ngrams = sum(ngrams.values())
             if total_ngrams==0:
@@ -243,12 +245,14 @@ class repetitions():
         """
         all_plots = ''
         for plot in plots:
-            all_plots += plot + '.'
+            remove_punc_plot = re.sub('[.,!?]', ' ', plot)  #For better matching of ngrams, we look at each plot as a "Sentence" and check repetition across the corpus
+            all_plots += remove_punc_plot + '.'
         unigrams = self.get_ngrams(all_plots, n=1)
         bigrams = self.get_ngrams(all_plots, n=2)
         trigrams = self.get_ngrams(all_plots, n=3)
+        fourgrams = self.get_ngrams(all_plots, n=4)
         results = {}
-        for n,res in zip([1,2,3],[unigrams,bigrams,trigrams]):
+        for n,res in zip([1,2,3,4],[unigrams,bigrams,trigrams,fourgrams]):
             num = len(res)
             cur_sum = sum([res[x] for x in res])
             results[f'inter_{n}'] = 1.0-(float(num)/float(cur_sum))
@@ -288,5 +292,5 @@ class repetitions():
                 res[f'intra_{n}_max'] = tmp['max']
             for k,v in res.items():
                 results[f'{k}_{self.order}'] = v
-        print(results)
+        # print(results)
         return results
