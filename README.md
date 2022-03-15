@@ -1,7 +1,7 @@
 # NLP-final-Project
 ## This is our NLP final Project
 
-###requirements:  <br>
+##requirements:  <br>
 pip install box <br>
 pip install python-rake==1.4.4 <br>
 pip install wandb <br>
@@ -9,7 +9,7 @@ pip install pywebio (only needed to run the web app)<br>
 pip install keybert (optional for kw extraction. our final model did not use this and the relevant code is commented)
 <br>
 
-### Reproduction Instructions: 
+## Reproduction Instructions: 
 1. open a "data" directory for the movie datasets (all datasets can be found in Git
 https://github.com/LiorYariv1/NLP-final-Project)
 2. Run main.py to clean the data set, extract keywords and train the model. 
