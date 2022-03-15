@@ -348,3 +348,9 @@ if w.isascii():
     print('english')
 else:
     print('problem')
+
+#%%
+from T5 import PlotGenerationModel
+p3_model = PlotGenerationModel('model1902__kw_Rake_p3', 't5-base', num_beams=9)
+txt='<extra_id_0> Avatar </s> <extra_id_1> science fiction, thriller </s> <extra_id_2> cybernet, sims, sim, leaders'
+p3_model.generate_plot(txt)
